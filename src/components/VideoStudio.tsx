@@ -7,11 +7,16 @@ import Axios from 'axios';
 import { Slider } from '@material-ui/core';
 import classNames from 'classnames';
 import '../styles/video-studio.scss';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { connectorState } from '../atoms/connector';
+import { jobState } from '../atoms/job';
+import { IJobState } from '../interfaces/Job.interface';
 function VideoStudio() {
   const location = useLocation();
   const parse = query.parse(location.search);
   const history = useHistory();
   const url = String(parse.url);
+  const connector = useRecoilValue(connectorState);
   const [loading, setLoading] = useState(true);
   const [cutSettings, setCutSettings] = useState<ICutSettings>({
     start: 1,
@@ -27,6 +32,12 @@ function VideoStudio() {
     start: number;
     end: number;
     duration: number;
+  }
+
+  interface IJobRequest {
+    url: string;
+    start: number;
+    end: number;
   }
 
   interface IYTVideoInfo {
@@ -45,7 +56,7 @@ function VideoStudio() {
     type: string;
   }
 
-  interface IWorkState {
+  interface Ijob {
     processing: boolean;
     progress: number;
     error: boolean;
@@ -71,11 +82,7 @@ function VideoStudio() {
 
   const [videoInfo, setVideoInfo] = useState<IYTVideoInfo | null>(null);
   const [player, setPlayer] = useState<ReactPlayer>();
-  const [workState, setWorkState] = useState<IWorkState>({
-    error: false,
-    processing: false,
-    progress: 0,
-  });
+  const [job, setJob] = useRecoilState<IJobState>(jobState);
 
   //return to main page if url invalid
   if (!validateYouTubeUrl(url)) {
@@ -178,7 +185,17 @@ function VideoStudio() {
   }
 
   function startCut() {
-    setWorkState({ ...workState, processing: true, progress: 1 });
+    setJob({ ...job, active: true, progress: 1 });
+    connector.ws?.send(
+      JSON.stringify({
+        type: 'requestJob',
+        data: {
+          url: 'https://www.youtube.com/watch?v=aeM0EVs1ON8',
+          start: 10,
+          end: 50,
+        },
+      })
+    );
   }
 
   if (videoInfo) {
@@ -268,29 +285,34 @@ function VideoStudio() {
                   </div>
                 </div>
                 <hr></hr>
+                {!job.fileUrl && (
+                  <>
+                    <button className={classNames('btn btn-primary btn-lg btn-block mb-5')} disabled={job?.active} type="button" onClick={startCut}>
+                      {job?.active && <span>{job.state}</span>}
+                      {!job?.active && <span>Cut</span>}
+                    </button>
 
-                <button
-                  className={classNames('btn btn-primary btn-lg btn-block mb-5')}
-                  disabled={workState?.processing}
-                  type="button"
-                  onClick={startCut}
-                >
-                  {workState?.processing && <span>Working...</span>}
-                  {!workState?.processing && <span>Cut</span>}
-                </button>
-
-                <div className={classNames('progress work-progress', { active: workState.progress > 0 })}>
-                  <div
-                    className="progress-bar progress-bar-animated"
-                    role="progressbar"
-                    style={{
-                      width: `${workState.progress}%`,
-                    }}
-                    aria-valuenow={workState.progress}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                  ></div>
-                </div>
+                    <div className={classNames('progress work-progress', { active: job.progress > 0 })}>
+                      <div
+                        className="progress-bar progress-bar-animated"
+                        role="progressbar"
+                        style={{
+                          width: `${job.progress}%`,
+                        }}
+                        aria-valuenow={job.progress}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                      ></div>
+                    </div>
+                  </>
+                )}
+                {job.fileUrl && (
+                  <>
+                    <button className={classNames('btn btn-success btn-lg btn-block mb-5')} disabled={job?.active} type="button">
+                      <span>Download</span>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>

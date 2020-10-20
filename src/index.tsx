@@ -5,11 +5,14 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import halfmoon from 'halfmoon';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { RecoilRoot } from 'recoil';
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <App />
-    </Router>
+    <RecoilRoot>
+      <Router>
+        <App />
+      </Router>
+    </RecoilRoot>
   </React.StrictMode>,
   document.getElementById('root')
 );
