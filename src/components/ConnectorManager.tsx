@@ -18,6 +18,7 @@ function ConnectorManager() {
 
     ws.onmessage = (rawData) => {
       const message = parseMessage(String(rawData.data));
+      console.log(`[${message.type}] ${JSON.stringify(message.data)}`);
       switch (message.type) {
         case 'jobState':
           setJob({ ...message.data });
