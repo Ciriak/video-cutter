@@ -69,13 +69,16 @@ function VideoStudio() {
   const [job, setJob] = useRecoilState<IJobState>(jobState);
 
   useEffect(() => {
+    function handleError() {
+      history.push('/');
+    }
     //return to main page if url invalid
     if (!validateYouTubeUrl(url)) {
       handleError();
     }
 
     setCutSettings({ ...cutSettings, videoUrl: url });
-  }, []);
+  }, [cutSettings, history, url]);
 
   /**
    * Set the cut time
@@ -140,10 +143,6 @@ function VideoStudio() {
     // if (state.playedSeconds > cutSettings.end) {
     //   player?.seekTo(cutSettings.start);
     // }
-  }
-
-  function handleError() {
-    history.push('/');
   }
 
   function refPlayer(player: ReactPlayer) {

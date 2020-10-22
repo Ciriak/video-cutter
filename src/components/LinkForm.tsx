@@ -8,7 +8,7 @@ import { defaultJobState } from '../interfaces/Job.interface';
 function LinkForm() {
   const [validState, setValidState] = useState<boolean>(true);
   const history = useHistory();
-  const [job, setJob] = useRecoilState(jobState);
+  const [, setJob] = useRecoilState(jobState);
   const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const url = e.target.value;

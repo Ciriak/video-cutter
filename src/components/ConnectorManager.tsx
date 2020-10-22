@@ -1,4 +1,3 @@
-import React from 'react';
 import { useRecoilState } from 'recoil';
 import { connectorState } from '../atoms/connector';
 import { jobState } from '../atoms/job';
@@ -8,7 +7,7 @@ const wsAddress = process.env.REACT_APP_WS_ADDRESS || 'ws://localhost:8080';
 
 function ConnectorManager() {
   const [connector, setConnector] = useRecoilState(connectorState);
-  const [job, setJob] = useRecoilState<IJobState>(jobState);
+  const [, setJob] = useRecoilState<IJobState>(jobState);
   if (!connector.connected) {
     let ws: WebSocket | undefined;
     ws = new WebSocket(wsAddress);
