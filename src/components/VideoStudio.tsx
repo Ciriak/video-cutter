@@ -19,10 +19,11 @@ function VideoStudio() {
   const connector = useRecoilValue(connectorState);
   // const [loading, setLoading] = useState(true);
   const [playerTime, setPlayerTime] = useState<number>(0);
+  const [previewMode, setPreviewMode] = useState<boolean>(true);
   const [cutSettings, setCutSettings] = useState<ICutSettings>({
-    start: 1,
-    end: 4,
-    duration: 3,
+    start: 0,
+    end: 60,
+    duration: 60,
     min: 0,
     max: 10,
     videoUrl: '',
@@ -75,10 +76,11 @@ function VideoStudio() {
     //return to main page if url invalid
     if (!validateYouTubeUrl(url)) {
       handleError();
+    } else {
     }
 
-    setCutSettings({ ...cutSettings, videoUrl: url });
-  }, [cutSettings, history, url]);
+    // setCutSettings({ ...cutSettings, videoUrl: url });
+  }, [history, url]);
 
   /**
    * Set the cut time
@@ -140,9 +142,21 @@ function VideoStudio() {
 
     setPlayerTime(parseFloat(rawTime.toFixed(2)));
 
-    // if (state.playedSeconds > cutSettings.end) {
-    //   player?.seekTo(cutSettings.start);
-    // }
+    //handle preview mode
+    if (previewMode) {
+      // force the time to be at least at the start
+      if (state.playedSeconds < cutSettings.start) {
+        player?.seekTo(cutSettings.start);
+      }
+      // ..and not after the end
+      if (state.playedSeconds > cutSettings.end) {
+        player?.seekTo(cutSettings.start);
+      }
+      // return to start
+      if (state.playedSeconds > cutSettings.end) {
+        player?.seekTo(cutSettings.start);
+      }
+    }
   }
 
   function refPlayer(player: ReactPlayer) {
@@ -169,7 +183,7 @@ function VideoStudio() {
       JSON.stringify({
         type: 'requestJob',
         data: {
-          url: job.fileUrl,
+          url: url,
           start: cutSettings.start,
           end: cutSettings.end,
         },
@@ -186,11 +200,23 @@ function VideoStudio() {
             url={url}
             width={'100%'}
             ref={refPlayer}
-            volume={0}
+            volume={0.5}
             controls
             playing={true}
             onReady={handlePlayerReady}
             progressInterval={100}
+            loop={true}
+            config={{
+              youtube: {
+                embedOptions: {
+                  playerVars: {
+                    autoplay: true,
+                    fs: 0,
+                    rel: 0,
+                  },
+                },
+              },
+            }}
             onProgress={(state) => {
               handlePlayerProgress(state);
             }}
@@ -214,10 +240,17 @@ function VideoStudio() {
         <div className="col-5">
           <div className="card">
             <h2 className="card-title">Cut settings</h2>
-            <div className="form-group">
-              <label>Current time</label>
-              <input type="number" step="0.01" value={playerTime} className="form-control" disabled />
+            <div className="row">
+              <div className="form-group">
+                <label>Current time</label>
+                <input type="number" step="0.01" value={playerTime} className="form-control" disabled />
+              </div>
+              <div className="col-6 d-flex align-items-center justify-content-center">
+                <label htmlFor="preview-check">Preview mode</label>
+                <input className="m-5" type="checkbox" id="preview-check" checked={previewMode} onChange={() => setPreviewMode(!previewMode)} />
+              </div>
             </div>
+
             <div className="row mb-5">
               <div
                 className="btn btn-default mr-5"
@@ -315,7 +348,7 @@ function VideoStudio() {
                     <div
                       className={classNames('progress-bar progress-bar-animated', {
                         'bg-success': job.state === 'done',
-                        'bg-error': job.state === 'error',
+                        'bg-danger': job.state === 'error',
                       })}
                       role="progressbar"
                       style={{
@@ -332,7 +365,11 @@ function VideoStudio() {
                       <i className="fa fa-circle-notch text-primary font-size-16 rotating"></i>
                     )}
 
-                    {job.state === 'error' && <i className="fa fa-exclamation-circle text-error font-size-16"></i>}
+                    {job.state === 'error' && (
+                      <span data-toggle="tooltip" data-title="An error hapenned">
+                        <i className="fa fa-exclamation-circle text-danger font-size-16"></i>
+                      </span>
+                    )}
                   </span>
                 </div>
 
