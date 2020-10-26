@@ -1,0 +1,38 @@
+{
+  "language": "English",
+  "title": "Youtube Cutter",
+  "commons": {
+    "title": "Cut and download any Youtube video",
+    "description": "Youtube Cutter provide you a simple and fast way to cut a Youtube video and download it",
+    "cut": "Cut",
+    "about": "About",
+    "beta": "beta",
+    "pasteUrlHere": "Paste a Youtube url here",
+    "example": "Example",
+    "madeBy": "Made by"
+  },
+  "studio": {
+    "cutTitle": "Cut a Youtube video",
+    "cutSettings": "Cut settings",
+    "currentTime": "Current time",
+    "previewMode": "Preview mode",
+    "setCutStart": "Set cut start",
+    "setCutEnd": "Set cut end",
+    "start": "Start",
+    "duration": "Duration",
+    "end": "End",
+    "download": "Download",
+    "needToResolveCaptcha": "You need to resolve the captcha first",
+    "anErrorHappened": "An error happened",
+    "anotherVideo": "Cut another video"
+  },
+  "state": {
+    "idle": "Idle",
+    "waiting": "Waiting",
+    "downloading": "Downloading",
+    "error": "Error",
+    "converting": "Converting",
+    "cleaning": "Cleaning",
+    "done": "Done"
+  }
+}

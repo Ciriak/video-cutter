@@ -10,11 +10,28 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { connectorState } from '../atoms/connector';
 import { jobState } from '../atoms/job';
 import { IJobState } from '../interfaces/Job.interface';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+
+const maxDuration = 180; // 3min
+const siteKey = process.env.REACT_APP_HCAPTCHA_SITE_KEY || '10000000-ffff-ffff-ffff-000000000001';
+
+interface ICutSettings {
+  min: number;
+  max: number;
+  start: number;
+  end: number;
+  duration: number;
+  videoUrl: string;
+  verificationToken?: string;
+}
+
 function VideoStudio() {
   const location = useLocation();
   const parse = query.parse(location.search);
   const history = useHistory();
+  const [t] = useTranslation();
   const url = String(parse.url);
   const connector = useRecoilValue(connectorState);
   // const [loading, setLoading] = useState(true);
@@ -28,43 +45,6 @@ function VideoStudio() {
     max: 10,
     videoUrl: '',
   });
-
-  interface ICutSettings {
-    min: number;
-    max: number;
-    start: number;
-    end: number;
-    duration: number;
-    videoUrl: string;
-  }
-
-  interface IJobRequest {
-    url: string;
-    start: number;
-    end: number;
-  }
-
-  interface IYTVideoInfo {
-    provider_url: string;
-    author_name: string;
-    provider_name: string;
-    height: number;
-    thumbnail_width: number;
-    author_url: string;
-    thumbnail_height: number;
-    version: string;
-    width: number;
-    title: string;
-    html: string;
-    thumbnail_url: string;
-    type: string;
-  }
-
-  interface Ijob {
-    processing: boolean;
-    progress: number;
-    error: boolean;
-  }
 
   const [player, setPlayer] = useState<ReactPlayer>();
   const [job, setJob] = useRecoilState<IJobState>(jobState);
@@ -93,8 +73,25 @@ function VideoStudio() {
     const newSettings = { ...cutSettings };
     newSettings[pos] = value;
 
+    if (newSettings.start > newSettings.end || newSettings.end < newSettings.start) {
+      newSettings.end = newSettings.start + 1;
+    }
+
     newSettings.duration = parseFloat((newSettings.end - newSettings.start).toFixed(2));
     player?.seekTo(value);
+
+    // ensure we cannot go more than the max duration setting
+    if (newSettings.duration > maxDuration) {
+      // move the select area depending of the dot moving
+      if (pos === 'end') {
+        newSettings.start = newSettings.end - maxDuration;
+      }
+      if (pos === 'start') {
+        newSettings.end = newSettings.start + maxDuration;
+      }
+
+      newSettings.duration = maxDuration;
+    }
 
     setCutSettings(newSettings);
   }
@@ -135,6 +132,14 @@ function VideoStudio() {
       // if increment AND can increment
       setTime(cutSettings.end - 1, 'end');
     }
+  }
+
+  /**
+   * Called when the captcha is completed
+   * @param token
+   */
+  function handleVerificationSuccess(token: string) {
+    setCutSettings({ ...cutSettings, verificationToken: token });
   }
 
   function handlePlayerProgress(state: { played: number; playedSeconds: number; loaded: number; loadedSeconds: number }) {
@@ -186,16 +191,25 @@ function VideoStudio() {
           url: url,
           start: cutSettings.start,
           end: cutSettings.end,
+          verificationToken: cutSettings.verificationToken,
         },
       })
     );
   }
 
+  function canRunJob() {
+    if (job.state === 'idle' && cutSettings.verificationToken) {
+      return true;
+    }
+
+    return false;
+  }
+
   return (
     <div className="video-studio flex container">
       <div className="row">
-        <div className="col-7">
-          {/* <h2>{videoInfo.title}</h2> */}
+        <div className="col-lg-7">
+          <h2>{t('studio.cutTitle')}</h2>
           <ReactPlayer
             url={url}
             width={'100%'}
@@ -237,16 +251,16 @@ function VideoStudio() {
             />
           </div>
         </div>
-        <div className="col-5">
+        <div className="col-lg-5">
           <div className="card">
-            <h2 className="card-title">Cut settings</h2>
+            <h2 className="card-title">{t('studio.cutSettings')}</h2>
             <div className="row">
               <div className="form-group">
-                <label>Current time</label>
-                <input type="number" step="0.01" value={playerTime} className="form-control" disabled />
+                <label>{t('studio.currentTime')}</label>
+                <input type="number" step="0.01" value={playerTime} max={maxDuration} min={0} className="form-control" disabled />
               </div>
               <div className="col-6 d-flex align-items-center justify-content-center">
-                <label htmlFor="preview-check">Preview mode</label>
+                <label htmlFor="preview-check">{t('studio.previewMode')}</label>
                 <input className="m-5" type="checkbox" id="preview-check" checked={previewMode} onChange={() => setPreviewMode(!previewMode)} />
               </div>
             </div>
@@ -258,7 +272,7 @@ function VideoStudio() {
                   setTime(playerTime, 'start');
                 }}
               >
-                <i className="fa fa-cut"></i> Set Cut Start{' '}
+                <i className="fa fa-cut"></i> {t('studio.setCutStart')}
               </div>
               <div
                 className="btn btn-default"
@@ -266,13 +280,13 @@ function VideoStudio() {
                   setTime(playerTime, 'end');
                 }}
               >
-                <i className="fa fa-cut"></i> Set Cut End{' '}
+                <i className="fa fa-cut"></i> {t('studio.setCutEnd')}
               </div>
             </div>
             <div className="row">
               <div className="input-group col">
                 <div className="input-group-prepend">
-                  <span className="input-group-text">Start</span>
+                  <span className="input-group-text">{t('studio.start')}</span>
                 </div>
                 <input
                   type="number"
@@ -288,7 +302,7 @@ function VideoStudio() {
               </div>
               <div className="input-group col">
                 <div className="input-group-prepend">
-                  <span className="input-group-text">End</span>
+                  <span className="input-group-text">{t('studio.end')}</span>
                 </div>
                 <input
                   type="number"
@@ -306,7 +320,7 @@ function VideoStudio() {
             <div className="row">
               <div className="input-group col-6">
                 <div className="input-group-prepend">
-                  <span className="input-group-text">Duration</span>
+                  <span className="input-group-text">{t('studio.duration')}</span>
                 </div>
                 <input
                   type="number"
@@ -324,19 +338,22 @@ function VideoStudio() {
             {!job.fileUrl && (
               <>
                 {job.state !== 'done' && (
-                  // BASE BTN
-                  <button className={classNames('btn btn-primary btn-lg btn-block mb-5')} disabled={job?.active} type="button" onClick={startCut}>
-                    {job?.active && <span>{job.state}</span>}
-                    {!job?.active && <span>Cut</span>}
-                  </button>
+                  <>
+                    <HCaptcha theme={'dark'} sitekey={siteKey} onVerify={(token: string) => handleVerificationSuccess(token)} />
+                    {/* // BASE BTN */}
+                    <button className={classNames('btn btn-primary btn-lg btn-block mb-5')} disabled={!canRunJob()} type="button" onClick={startCut}>
+                      {job.state !== 'idle' && <span>{t('state.' + job.state)}</span>}
+                      {job.state === 'idle' && <span>{t('commons.cut')}</span>}
+                    </button>
+                  </>
                 )}
                 {job.state === 'done' && (
                   //DONE BTN
                   <>
                     <a href={getFileUrlForJob(job.id)} rel="noopener noreferrer" target="_blank">
-                      <button className={classNames('btn btn-success btn-lg btn-block mb-5')} disabled={job?.active} type="button">
+                      <button className={classNames('btn btn-success btn-lg btn-block mb-5')} type="button">
                         <span>
-                          Download <i className="fa fa-cloud-download-alt "></i>
+                          {t('studio.download')} <i className="fa fa-cloud-download-alt "></i>
                         </span>
                       </button>
                     </a>
@@ -375,7 +392,7 @@ function VideoStudio() {
 
                 {job.state === 'done' && (
                   <div className="text-right">
-                    <Link to="/">Try another video</Link>
+                    <Link to="/">{t('studio.anotherVideo')}</Link>
                   </div>
                 )}
               </>

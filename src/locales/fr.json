@@ -1,0 +1,38 @@
+{
+  "language": "Français",
+  "title": "Youtube Cutter",
+  "commons": {
+    "title": "Découpez et téléchargez n'importe quelle vidéo Youtube",
+    "description": "Youtube Cutter vous fournit un moyen rapide et simple de découper et télécharger une vidéo Youtube !",
+    "cut": "Découper",
+    "about": "A propos",
+    "beta": "beta",
+    "pasteUrlHere": "Collez une URL Youtube ici",
+    "example": "Exemple",
+    "madeBy": "Créé par"
+  },
+  "studio": {
+    "cutTitle": "Découper une vidéo Youtube",
+    "cutSettings": "Paramètres de découpage",
+    "currentTime": "Timer actuel",
+    "previewMode": "Mode preview",
+    "setCutStart": "Définir début",
+    "setCutEnd": "Définir fin",
+    "start": "Début",
+    "duration": "Durée",
+    "end": "Fin",
+    "download": "Télécharger",
+    "needToResolveCaptcha": "Vous devez dabord résoudre le captcha",
+    "anErrorHappened": "Une erreur s'est produite",
+    "anotherVideo": "Découper une autre vidéo"
+  },
+  "state": {
+    "idle": "idle",
+    "waiting": "En attente",
+    "downloading": "Téléchargement",
+    "error": "Erreur",
+    "converting": "Conversion",
+    "cleaning": "Nettoyage",
+    "done": "Terminé"
+  }
+}

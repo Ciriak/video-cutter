@@ -1,11 +1,20 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
-import About from './components/About';
 import NavBar from './components/NavBar';
 import LinkForm from './components/LinkForm';
 import VideoStudio from './components/VideoStudio';
 import ConnectorManager from './components/ConnectorManager';
+import { useTranslation } from 'react-i18next';
 function App() {
+  //force focus on main input
+  document.onclick = () => {
+    const inp = document.getElementById('link-input');
+    if (!inp) return;
+    inp.focus();
+  };
+
+  const [t] = useTranslation();
+
   return (
     <>
       <ConnectorManager />
@@ -15,9 +24,9 @@ function App() {
 
           <div className="content-wrapper">
             <Switch>
-              <Route path="/about">
+              {/* <Route path="/about">
                 <About />
-              </Route>
+              </Route> */}
               <Route path="/link">
                 <VideoStudio />
               </Route>
@@ -27,6 +36,14 @@ function App() {
             </Switch>
           </div>
         </div>
+        <footer>
+          <span className="credits">
+            {t('commons.madeBy')}{' '}
+            <a href="https://cyriaque.net" rel="noopener noreferrer" target="_blank">
+              Cyriaque Delaunay
+            </a>
+          </span>
+        </footer>
       </div>
     </>
   );

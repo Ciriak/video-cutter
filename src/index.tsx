@@ -6,6 +6,34 @@ import * as serviceWorker from './serviceWorker';
 import halfmoon from 'halfmoon';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { RecoilRoot } from 'recoil';
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+// locales
+import frLocales from './locales/fr.json';
+import enLocales from './locales/en.json';
+
+const userLang = navigator.language;
+
+i18n
+  .use(initReactI18next) // passes i18n down to react-i18next
+  .init({
+    resources: {
+      en: {
+        translation: enLocales,
+      },
+      fr: {
+        translation: frLocales,
+      },
+    },
+    lng: userLang,
+    fallbackLng: 'en',
+
+    interpolation: {
+      escapeValue: false,
+    },
+  });
+
 ReactDOM.render(
   <React.StrictMode>
     <RecoilRoot>

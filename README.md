@@ -40,3 +40,9 @@ ex: `http://toto.fr:2319`
 Websocket server address and port
 
 ex: `ws://toto.fr:2319`
+
+### `REACT_APP_HCAPTCHA_SITE_KEY`
+
+Hcaptcha sitekey
+
+see : https://docs.hcaptcha.com/#localdev
