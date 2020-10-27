@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import ReactPlayer from 'react-player';
 import { useHistory, useLocation } from 'react-router';
 import query from 'query-string';
 import { getFileUrlForJob, validateYouTubeUrl } from '../utils';
@@ -13,6 +12,7 @@ import { IJobState } from '../interfaces/Job.interface';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import Plyr from 'plyr';
 
 const maxDuration = 180; // 3min
 const siteKey = process.env.REACT_APP_HCAPTCHA_SITE_KEY || '10000000-ffff-ffff-ffff-000000000001';
@@ -46,10 +46,21 @@ function VideoStudio() {
     videoUrl: '',
   });
 
-  const [player, setPlayer] = useState<ReactPlayer>();
+  const [player, setPlayer] = useState<Plyr>();
   const [job, setJob] = useRecoilState<IJobState>(jobState);
 
   useEffect(() => {
+    const plyr = new Plyr('#player');
+    setPlayer(plyr);
+
+    plyr.on('ready', () => {
+      handlePlayerReady();
+    });
+
+    plyr.on('timeupdate', (e) => {
+      handlePlayerProgress(e.detail.plyr.currentTime || 0);
+    });
+
     function handleError() {
       history.push('/');
     }
@@ -59,8 +70,9 @@ function VideoStudio() {
     } else {
     }
 
-    // setCutSettings({ ...cutSettings, videoUrl: url });
-  }, [history, url]);
+    setCutSettings({ ...cutSettings, videoUrl: url });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * Set the cut time
@@ -69,6 +81,10 @@ function VideoStudio() {
    * @param end
    */
   function setTime(value: number, pos: 'start' | 'end') {
+    console.log(value, pos);
+    if (!player) {
+      return;
+    }
     value = parseFloat(value.toFixed(2));
     const newSettings = { ...cutSettings };
     newSettings[pos] = value;
@@ -78,7 +94,7 @@ function VideoStudio() {
     }
 
     newSettings.duration = parseFloat((newSettings.end - newSettings.start).toFixed(2));
-    player?.seekTo(value);
+    player.currentTime = value;
 
     // ensure we cannot go more than the max duration setting
     if (newSettings.duration > maxDuration) {
@@ -142,34 +158,28 @@ function VideoStudio() {
     setCutSettings({ ...cutSettings, verificationToken: token });
   }
 
-  function handlePlayerProgress(state: { played: number; playedSeconds: number; loaded: number; loadedSeconds: number }) {
-    const rawTime = player?.getCurrentTime() || 0;
-
-    setPlayerTime(parseFloat(rawTime.toFixed(2)));
+  function handlePlayerProgress(progress: number) {
+    setPlayerTime(parseFloat(progress.toFixed(2)));
 
     //handle preview mode
     if (previewMode) {
       // force the time to be at least at the start
-      if (state.playedSeconds < cutSettings.start) {
-        player?.seekTo(cutSettings.start);
+      if (progress < cutSettings.start) {
+        setPlayerTime(cutSettings.start);
       }
       // ..and not after the end
-      if (state.playedSeconds > cutSettings.end) {
-        player?.seekTo(cutSettings.start);
+      if (progress > cutSettings.end) {
+        setPlayerTime(cutSettings.start);
       }
       // return to start
-      if (state.playedSeconds > cutSettings.end) {
-        player?.seekTo(cutSettings.start);
+      if (progress > cutSettings.end) {
+        setPlayerTime(cutSettings.start);
       }
     }
   }
 
-  function refPlayer(player: ReactPlayer) {
-    setPlayer(player);
-  }
-
   function handlePlayerReady() {
-    setCutSettings({ ...cutSettings, max: player?.getDuration() || 0 });
+    setCutSettings({ ...cutSettings, max: player?.duration || 0 });
   }
 
   // if (loading) {
@@ -208,33 +218,17 @@ function VideoStudio() {
   return (
     <div className="video-studio flex container">
       <div className="row">
-        <div className="col-lg-7">
+        <div className="col-lg-6">
           <h2>{t('studio.cutTitle')}</h2>
-          <ReactPlayer
-            url={url}
-            width={'100%'}
-            ref={refPlayer}
-            volume={0.5}
-            controls
-            playing={true}
-            onReady={handlePlayerReady}
-            progressInterval={100}
-            loop={true}
-            config={{
-              youtube: {
-                embedOptions: {
-                  playerVars: {
-                    autoplay: true,
-                    fs: 0,
-                    rel: 0,
-                  },
-                },
-              },
-            }}
-            onProgress={(state) => {
-              handlePlayerProgress(state);
-            }}
-          />
+          <div className="plyr__video-embed" id="player">
+            <iframe
+              title="plyr"
+              src={`${url}?origin=https://plyr.io&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1`}
+              allowFullScreen
+              allowTransparency
+              allow="autoplay"
+            ></iframe>
+          </div>
 
           <div className="row">
             <Slider
@@ -251,7 +245,7 @@ function VideoStudio() {
             />
           </div>
         </div>
-        <div className="col-lg-5">
+        <div className="col-lg-6">
           <div className="card">
             <h2 className="card-title">{t('studio.cutSettings')}</h2>
             <div className="row">
