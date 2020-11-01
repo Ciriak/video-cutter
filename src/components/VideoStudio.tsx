@@ -27,6 +27,11 @@ interface ICutSettings {
   verificationToken?: string;
 }
 
+interface ICanRunJobResult {
+  canRun: boolean;
+  reason?: string;
+}
+
 function VideoStudio() {
   const location = useLocation();
   const parse = query.parse(location.search);
@@ -48,19 +53,17 @@ function VideoStudio() {
 
   const [player, setPlayer] = useState<Plyr>();
   const [job, setJob] = useRecoilState<IJobState>(jobState);
-
+  console.log(cutSettings, '1');
   useEffect(() => {
     const plyr = new Plyr('#player');
     setPlayer(plyr);
-
     plyr.on('ready', () => {
-      handlePlayerReady();
+      handlePlayerReady(plyr);
     });
 
     plyr.on('timeupdate', (e) => {
       handlePlayerProgress(e.detail.plyr.currentTime || 0);
     });
-
     function handleError() {
       history.push('/');
     }
@@ -70,7 +73,6 @@ function VideoStudio() {
     } else {
     }
 
-    setCutSettings({ ...cutSettings, videoUrl: url });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -81,7 +83,6 @@ function VideoStudio() {
    * @param end
    */
   function setTime(value: number, pos: 'start' | 'end') {
-    console.log(value, pos);
     if (!player) {
       return;
     }
@@ -94,20 +95,20 @@ function VideoStudio() {
     }
 
     newSettings.duration = parseFloat((newSettings.end - newSettings.start).toFixed(2));
-    player.currentTime = value;
+    // player.currentTime = value;
 
     // ensure we cannot go more than the max duration setting
-    if (newSettings.duration > maxDuration) {
-      // move the select area depending of the dot moving
-      if (pos === 'end') {
-        newSettings.start = newSettings.end - maxDuration;
-      }
-      if (pos === 'start') {
-        newSettings.end = newSettings.start + maxDuration;
-      }
+    // if (newSettings.duration > maxDuration) {
+    //   // move the select area depending of the dot moving
+    //   if (pos === 'end') {
+    //     newSettings.start = newSettings.end - maxDuration;
+    //   }
+    //   if (pos === 'start') {
+    //     newSettings.end = newSettings.start + maxDuration;
+    //   }
 
-      newSettings.duration = maxDuration;
-    }
+    //   newSettings.duration = maxDuration;
+    // }
 
     setCutSettings(newSettings);
   }
@@ -117,22 +118,22 @@ function VideoStudio() {
    * @param e
    * @param value
    */
-  function handleSliderChange(e: React.ChangeEvent<{}>, value: number | number[]) {
-    e.preventDefault();
-    //force an array
-    if (!Array.isArray(value)) {
-      value = [value];
-    }
+  // function handleSliderChange(e: React.ChangeEvent<{}>, value: number | number[]) {
+  //   e.preventDefault();
+  //   //force an array
+  //   if (!Array.isArray(value)) {
+  //     value = [value];
+  //   }
 
-    //detect wich value has moved, the start of the end
-    let val: 'start' | 'end' = 'end';
-    if (value[0] !== cutSettings.start) {
-      val = 'start';
-      setTime(value[0], val);
-    } else {
-      setTime(value[1], val);
-    }
-  }
+  //   //detect wich value has moved, the start of the end
+  //   let val: 'start' | 'end' = 'end';
+  //   if (value[0] !== cutSettings.start) {
+  //     val = 'start';
+  //     setTime(value[0], val);
+  //   } else {
+  //     setTime(value[1], val);
+  //   }
+  // }
 
   /**
    * Set the duration and apply the correct time
@@ -159,8 +160,10 @@ function VideoStudio() {
   }
 
   function handlePlayerProgress(progress: number) {
+    console.log(cutSettings, '2');
     setPlayerTime(parseFloat(progress.toFixed(2)));
 
+    console.log(progress, cutSettings);
     //handle preview mode
     if (previewMode) {
       // force the time to be at least at the start
@@ -178,8 +181,13 @@ function VideoStudio() {
     }
   }
 
-  function handlePlayerReady() {
-    setCutSettings({ ...cutSettings, max: player?.duration || 0 });
+  function handlePlayerReady(player: Plyr) {
+    let defaultCut = player.duration;
+    if (player.duration > maxDuration) {
+      defaultCut = maxDuration;
+    }
+
+    setCutSettings({ ...cutSettings, max: player.duration || maxDuration, start: 0, end: defaultCut, duration: defaultCut });
   }
 
   // if (loading) {
@@ -207,12 +215,48 @@ function VideoStudio() {
     );
   }
 
-  function canRunJob() {
-    if (job.state === 'idle' && cutSettings.verificationToken) {
-      return true;
+  /**
+   * Generate the tooltip props if we to display a hint to the user
+   * @param canRun
+   */
+  function getTooltipProps(canRun: ICanRunJobResult) {
+    if (canRun.reason) {
+      return {
+        'data-toggle': 'tooltip',
+        'data-placement': 'left',
+        'data-title': canRun.reason,
+      };
+    }
+    return null;
+  }
+
+  /**
+   * Tell wether or not the user can launch the job
+   */
+  function canRunJob(): ICanRunJobResult {
+    if (cutSettings.duration > maxDuration) {
+      return {
+        canRun: false,
+        reason: t('studio.tooLongCut').replace('%maxDuration%', String(maxDuration)),
+      };
     }
 
-    return false;
+    if (!cutSettings.verificationToken) {
+      return {
+        canRun: false,
+        reason: t('studio.needToResolveCaptcha'),
+      };
+    }
+
+    if (job.state === 'idle') {
+      return {
+        canRun: true,
+      };
+    }
+
+    return {
+      canRun: false,
+    };
   }
 
   return (
@@ -230,7 +274,7 @@ function VideoStudio() {
             ></iframe>
           </div>
 
-          <div className="row">
+          {/* <div className="row">
             <Slider
               value={[cutSettings.start, cutSettings.end]}
               min={cutSettings.min}
@@ -243,7 +287,7 @@ function VideoStudio() {
 
               // marks={marks}
             />
-          </div>
+          </div> */}
         </div>
         <div className="col-lg-6">
           <div className="card">
@@ -251,7 +295,7 @@ function VideoStudio() {
             <div className="row">
               <div className="form-group">
                 <label>{t('studio.currentTime')}</label>
-                <input type="number" step="0.01" value={playerTime} max={maxDuration} min={0} className="form-control" disabled />
+                <input type="number" step="0.1" value={playerTime} max={maxDuration} min={0} className="form-control" disabled />
               </div>
               <div className="col-6 d-flex align-items-center justify-content-center">
                 <label htmlFor="preview-check">{t('studio.previewMode')}</label>
@@ -259,28 +303,17 @@ function VideoStudio() {
               </div>
             </div>
 
-            <div className="row mb-5">
-              <div
-                className="btn btn-default mr-5"
-                onClick={() => {
-                  setTime(playerTime, 'start');
-                }}
-              >
-                <i className="fa fa-cut"></i> {t('studio.setCutStart')}
-              </div>
-              <div
-                className="btn btn-default"
-                onClick={() => {
-                  setTime(playerTime, 'end');
-                }}
-              >
-                <i className="fa fa-cut"></i> {t('studio.setCutEnd')}
-              </div>
-            </div>
             <div className="row">
               <div className="input-group col">
                 <div className="input-group-prepend">
-                  <span className="input-group-text">{t('studio.start')}</span>
+                  <button
+                    className="btn"
+                    onClick={() => {
+                      setTime(playerTime, 'start');
+                    }}
+                  >
+                    {t('studio.start')}
+                  </button>
                 </div>
                 <input
                   type="number"
@@ -296,7 +329,14 @@ function VideoStudio() {
               </div>
               <div className="input-group col">
                 <div className="input-group-prepend">
-                  <span className="input-group-text">{t('studio.end')}</span>
+                  <button
+                    className="btn"
+                    onClick={() => {
+                      setTime(playerTime, 'end');
+                    }}
+                  >
+                    {t('studio.end')}
+                  </button>
                 </div>
                 <input
                   type="number"
@@ -306,6 +346,7 @@ function VideoStudio() {
                   step="0.1"
                   className="form-control"
                   onChange={(e) => {
+                    console.log(e.target.value);
                     setTime(parseFloat(e.target.value), 'end');
                   }}
                 />
@@ -335,7 +376,13 @@ function VideoStudio() {
                   <>
                     <HCaptcha theme={'dark'} sitekey={siteKey} onVerify={(token: string) => handleVerificationSuccess(token)} />
                     {/* // BASE BTN */}
-                    <button className={classNames('btn btn-primary btn-lg btn-block mb-5')} disabled={!canRunJob()} type="button" onClick={startCut}>
+                    <button
+                      {...getTooltipProps(canRunJob())}
+                      className={classNames('btn btn-primary btn-lg btn-block mb-5')}
+                      disabled={!canRunJob().canRun}
+                      type="button"
+                      onClick={startCut}
+                    >
                       {job.state !== 'idle' && <span>{t('state.' + job.state)}</span>}
                       {job.state === 'idle' && <span>{t('commons.cut')}</span>}
                     </button>

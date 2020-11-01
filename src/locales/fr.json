@@ -24,7 +24,8 @@
     "download": "Télécharger",
     "needToResolveCaptcha": "Vous devez dabord résoudre le captcha",
     "anErrorHappened": "Une erreur s'est produite",
-    "anotherVideo": "Découper une autre vidéo"
+    "anotherVideo": "Découper une autre vidéo",
+    "tooLongCut": "La durée du clip ne peut dépassed %maxDuration% secondes"
   },
   "state": {
     "idle": "idle",
