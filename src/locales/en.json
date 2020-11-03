@@ -34,5 +34,10 @@
     "converting": "Converting",
     "cleaning": "Cleaning",
     "done": "Done"
+  },
+  "error": {
+    "incidentInProgress": "Incident in progress",
+    "incidentInProgressDesc": "Due to a technical issue, the server in currently unavailable, it will be back soon !\nPlease try again in  a few minutes",
+    "serverUnavailable": "Server unavailable"
   }
 }
