@@ -15,6 +15,7 @@ export interface IJobOptions {
   url: string;
   start: number;
   end: number;
+  type: 'video' | 'mp3';
 }
 
 export const defaultJobState: IJobState = {
@@ -25,6 +26,7 @@ export const defaultJobState: IJobState = {
     end: 0,
     start: 0,
     url: '',
+    type: 'video',
   },
   progress: 0,
   state: 'idle',

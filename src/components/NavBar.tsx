@@ -10,14 +10,9 @@ function NavBar() {
         <img src={logo} alt="logo" /> {t('title')}
       </Link>
 
-      <span className="navbar-text text-monospace">{t('commons.beta')}</span>
+      <span className="navbar-text text-monospace">{t('commons.descriptionShort')}</span>
 
       <ul className="navbar-nav">
-        <li className="nav-item active">
-          <Link to="/" className="nav-link">
-            {t('commons.cut')}
-          </Link>
-        </li>
         {/* <li className="nav-item">
           <Link to="/about" className="nav-link">
             {t('commons.about')}

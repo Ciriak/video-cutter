@@ -3,13 +3,17 @@
   "title": "Youtube Cutter",
   "commons": {
     "title": "Cut and download any Youtube video",
+    "descriptionShort": "Cut and download a Youtube video",
     "description": "Youtube Cutter provide you a simple and fast way to cut a Youtube video and download it",
     "cut": "Cut",
     "about": "About",
     "beta": "beta",
+    "retry": "Retry",
     "pasteUrlHere": "Paste a Youtube url here",
     "example": "Example",
-    "madeBy": "Made by"
+    "madeBy": "Made by",
+    "or": "or",
+    "restart": "restart"
   },
   "studio": {
     "cutTitle": "Cut a Youtube video",
@@ -18,6 +22,7 @@
     "previewMode": "Preview mode",
     "setCutStart": "Set cut start",
     "setCutEnd": "Set cut end",
+    "downloadMp3": "Download an an Mp3 file (audio only)",
     "start": "Start",
     "duration": "Duration",
     "end": "End",

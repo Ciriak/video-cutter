@@ -13,8 +13,10 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ReactPlayer from 'react-player';
 
-const maxCutDuration = 180; // 3min
+const maxCutDuration = 600; // 10min
 const siteKey = process.env.REACT_APP_HCAPTCHA_SITE_KEY || '10000000-ffff-ffff-ffff-000000000001';
+const savedPreviewMode = localStorage.getItem('ytct_preview') === 'true' || false;
+const savedType: any = String(localStorage.getItem('ytct_type')) || 'video';
 
 interface ICutSettings {
   min: number;
@@ -24,6 +26,7 @@ interface ICutSettings {
   duration: number;
   videoUrl: string;
   verificationToken?: string;
+  type: 'video' | 'mp3';
 }
 
 interface ICanRunJobResult {
@@ -41,7 +44,7 @@ function VideoStudio() {
   // const [loading, setLoading] = useState(true);
   const [playerTime, setPlayerTime] = useState<number>(0);
   const [playing, setPlaying] = useState<boolean>(true);
-  const [previewMode, setPreviewMode] = useState<boolean>(true);
+  const [previewMode, setPreviewMode] = useState<boolean>(savedPreviewMode);
   const [player, setPlayer] = useState<ReactPlayer>();
   const [cutSettings, setCutSettings] = useState<ICutSettings>({
     start: 0,
@@ -50,6 +53,7 @@ function VideoStudio() {
     min: 0,
     max: 10,
     videoUrl: '',
+    type: savedType,
   });
 
   const [job, setJob] = useRecoilState<IJobState>(jobState);
@@ -65,6 +69,18 @@ function VideoStudio() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /**
+   * Called when the user click on "restart"
+   */
+  function handleRestart() {
+    document.location.reload();
+  }
+
+  function changePreviewMode(active: boolean) {
+    localStorage.setItem('ytct_preview', String(active));
+    setPreviewMode(active);
+  }
 
   /**
    * Set the cut time
@@ -98,6 +114,16 @@ function VideoStudio() {
     // }
 
     setCutSettings(newSettings);
+  }
+
+  /**
+   * Can edit job settings
+   */
+  function canEdit() {
+    if (job.state === 'idle') {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -164,10 +190,31 @@ function VideoStudio() {
           url: url,
           start: cutSettings.start,
           end: cutSettings.end,
+          type: cutSettings.type,
           verificationToken: cutSettings.verificationToken,
         },
       })
     );
+  }
+
+  /**
+   * Called when the user toggle the current mode
+   */
+  function handleModeChange() {
+    const newSettings = { ...cutSettings };
+    if (cutSettings.type === 'mp3') {
+      newSettings.type = 'video';
+    } else {
+      newSettings.type = 'mp3';
+    }
+
+    if (newSettings.type === 'mp3') {
+      changePreviewMode(false);
+    }
+
+    localStorage.setItem('ytct_type', newSettings.type);
+
+    setCutSettings(newSettings);
   }
 
   /**
@@ -209,6 +256,13 @@ function VideoStudio() {
       };
     }
 
+    // can retry after an error
+    if (job.state === 'error') {
+      return {
+        canRun: true,
+      };
+    }
+
     return {
       canRun: false,
     };
@@ -241,9 +295,34 @@ function VideoStudio() {
                 <label>{t('studio.currentTime')}</label>
                 <input type="number" step="0.1" value={playerTime} max={maxCutDuration} min={0} className="form-control" disabled />
               </div>
-              <div className="col-6 d-flex align-items-center justify-content-center">
-                <label htmlFor="preview-check">{t('studio.previewMode')}</label>
-                <input className="m-5" type="checkbox" id="preview-check" checked={previewMode} onChange={() => setPreviewMode(!previewMode)} />
+              <div className="col-4 d-flex align-items-center justify-content-center">
+                <div className="custom-switch">
+                  <input
+                    type="checkbox"
+                    id="switch-preview"
+                    checked={previewMode}
+                    disabled={!canEdit()}
+                    onChange={() => changePreviewMode(!previewMode)}
+                  />
+                  <label htmlFor="switch-preview">{t('studio.previewMode')}</label>
+                </div>
+              </div>
+
+              <div className="col-4 d-flex align-items-center justify-content-center">
+                <div className="custom-switch" data-toggle="tooltip" data-placement="right" data-title={t('studio.downloadMp3')}>
+                  <input
+                    type="checkbox"
+                    id="switch-mode"
+                    disabled={!canEdit()}
+                    checked={cutSettings.type === 'mp3'}
+                    onChange={() => {
+                      handleModeChange();
+                    }}
+                  />
+                  <label htmlFor="switch-mode">
+                    <i className="fas fa-music"></i>
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -252,6 +331,7 @@ function VideoStudio() {
                 <div className="input-group-prepend">
                   <button
                     className="btn tool-btn"
+                    disabled={!canEdit()}
                     onClick={() => {
                       setTime(playerTime, 'start');
                     }}
@@ -261,6 +341,7 @@ function VideoStudio() {
                 </div>
                 <input
                   type="number"
+                  disabled={!canEdit()}
                   value={cutSettings.start}
                   min={cutSettings.min}
                   step="0.1"
@@ -274,6 +355,7 @@ function VideoStudio() {
               <div className="input-group col">
                 <div className="input-group-prepend">
                   <button
+                    disabled={!canEdit()}
                     className="btn tool-btn"
                     onClick={() => {
                       setTime(playerTime, 'end');
@@ -284,6 +366,7 @@ function VideoStudio() {
                 </div>
                 <input
                   type="number"
+                  disabled={!canEdit()}
                   value={cutSettings.end}
                   min={cutSettings.start}
                   max={cutSettings.max}
@@ -298,10 +381,13 @@ function VideoStudio() {
             <div className="row">
               <div className="input-group col-6">
                 <div className="input-group-prepend text-center">
-                  <span className="input-group-text tool-btn">{t('studio.duration')}</span>
+                  <button disabled={!canEdit()} className="btn tool-btn">
+                    {t('studio.duration')}
+                  </button>
                 </div>
                 <input
                   type="number"
+                  disabled={!canEdit()}
                   value={cutSettings.duration}
                   min="0"
                   step="0.1"
@@ -327,14 +413,15 @@ function VideoStudio() {
                       onClick={startCut}
                     >
                       {job.state !== 'idle' && <span>{t('state.' + job.state)}</span>}
-                      {job.state === 'idle' && <span>{t('commons.cut')}</span>}
+                      {job.state === 'idle' && <span>{t('studio.download')}</span>}
+                      {job.state === 'error' && <span>{t('commons.retry')}</span>}
                     </button>
                   </>
                 )}
                 {job.state === 'done' && (
                   //DONE BTN
                   <>
-                    <a href={getFileUrlForJob(job.id)} rel="noopener noreferrer" target="_blank" download>
+                    <a href={getFileUrlForJob(job.id, cutSettings.type)} rel="noopener noreferrer" target="_blank" download>
                       <button className={classNames('btn btn-success btn-lg btn-block mb-5')} type="button">
                         <span>
                           {t('studio.download')} <i className="fa fa-cloud-download-alt "></i>
@@ -377,6 +464,11 @@ function VideoStudio() {
                 {job.state === 'done' && (
                   <div className="text-right">
                     <Link to="/">{t('studio.anotherVideo')}</Link>
+                    {'   '}
+                    {t('commons.or')}
+                    <button className="btn btn-link" onClick={() => handleRestart()}>
+                      {t('commons.restart')}
+                    </button>
                   </div>
                 )}
               </>

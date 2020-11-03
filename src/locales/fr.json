@@ -2,14 +2,18 @@
   "language": "Français",
   "title": "Youtube Cutter",
   "commons": {
-    "title": "Découpez et téléchargez n'importe quelle vidéo Youtube",
+    "title": "Découpez et téléchargez n'importe quelle vidéo Youtube en mp4 ou mp3",
+    "descriptionShort": "Découpez et téléchargez une vidéo Youtube",
     "description": "Youtube Cutter vous fournit un moyen rapide et simple de découper et télécharger une vidéo Youtube !",
     "cut": "Découper",
     "about": "A propos",
     "beta": "beta",
+    "retry": "Réessayer",
     "pasteUrlHere": "Collez une URL Youtube ici",
     "example": "Exemple",
-    "madeBy": "Créé par"
+    "madeBy": "Créé par",
+    "or": "ou",
+    "restart": "recommencer"
   },
   "studio": {
     "cutTitle": "Découper une vidéo Youtube",
@@ -17,7 +21,9 @@
     "currentTime": "Timer actuel",
     "previewMode": "Mode preview",
     "setCutStart": "Définir début",
+
     "setCutEnd": "Définir fin",
+    "downloadMp3": "Télécharger en tant que Mp3 (audio seulement)",
     "start": "Début",
     "duration": "Durée",
     "end": "Fin",
@@ -38,7 +44,7 @@
   },
   "error": {
     "incidentInProgress": "Incident en cours",
-    "incidentInProgressDesc": "Suite a un soucis technique, notre serveur est momentanement indisponible.\nNous mettons tout en oeuvre pour le rétablir au plus vite.\nVeuilez nous excuser pour la gêne occasionée.\nRéesayez dans quelques minutes !",
+    "incidentInProgressDesc": "Suite à un soucis technique, notre serveur est momentanement indisponible.\nNous mettons tout en oeuvre pour le rétablir au plus vite.\nVeuilez nous excuser pour la gêne occasionée.\nRéesayez dans quelques minutes !",
     "serverUnavailable": "Serveur indisponible"
   }
 }
