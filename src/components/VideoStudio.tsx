@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router';
 import query from 'query-string';
 import { getFileUrlForJob, validateYouTubeUrl } from '../utils';
-import { Slider } from '@material-ui/core';
 import classNames from 'classnames';
 import '../styles/video-studio.scss';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -12,9 +11,9 @@ import { IJobState } from '../interfaces/Job.interface';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import Plyr from 'plyr';
+import ReactPlayer from 'react-player';
 
-const maxDuration = 180; // 3min
+const maxCutDuration = 180; // 3min
 const siteKey = process.env.REACT_APP_HCAPTCHA_SITE_KEY || '10000000-ffff-ffff-ffff-000000000001';
 
 interface ICutSettings {
@@ -41,7 +40,9 @@ function VideoStudio() {
   const connector = useRecoilValue(connectorState);
   // const [loading, setLoading] = useState(true);
   const [playerTime, setPlayerTime] = useState<number>(0);
+  const [playing, setPlaying] = useState<boolean>(true);
   const [previewMode, setPreviewMode] = useState<boolean>(true);
+  const [player, setPlayer] = useState<ReactPlayer>();
   const [cutSettings, setCutSettings] = useState<ICutSettings>({
     start: 0,
     end: 60,
@@ -51,19 +52,8 @@ function VideoStudio() {
     videoUrl: '',
   });
 
-  const [player, setPlayer] = useState<Plyr>();
   const [job, setJob] = useRecoilState<IJobState>(jobState);
-  console.log(cutSettings, '1');
   useEffect(() => {
-    const plyr = new Plyr('#player');
-    setPlayer(plyr);
-    plyr.on('ready', () => {
-      handlePlayerReady(plyr);
-    });
-
-    plyr.on('timeupdate', (e) => {
-      handlePlayerProgress(e.detail.plyr.currentTime || 0);
-    });
     function handleError() {
       history.push('/');
     }
@@ -83,9 +73,6 @@ function VideoStudio() {
    * @param end
    */
   function setTime(value: number, pos: 'start' | 'end') {
-    if (!player) {
-      return;
-    }
     value = parseFloat(value.toFixed(2));
     const newSettings = { ...cutSettings };
     newSettings[pos] = value;
@@ -160,34 +147,34 @@ function VideoStudio() {
   }
 
   function handlePlayerProgress(progress: number) {
-    console.log(cutSettings, '2');
     setPlayerTime(parseFloat(progress.toFixed(2)));
 
-    console.log(progress, cutSettings);
     //handle preview mode
     if (previewMode) {
       // force the time to be at least at the start
       if (progress < cutSettings.start) {
-        setPlayerTime(cutSettings.start);
+        player?.seekTo(cutSettings.start);
       }
       // ..and not after the end
       if (progress > cutSettings.end) {
-        setPlayerTime(cutSettings.start);
+        player?.seekTo(cutSettings.start);
       }
       // return to start
       if (progress > cutSettings.end) {
-        setPlayerTime(cutSettings.start);
+        player?.seekTo(cutSettings.start);
       }
+      setPlaying(true);
     }
   }
 
-  function handlePlayerReady(player: Plyr) {
-    let defaultCut = player.duration;
-    if (player.duration > maxDuration) {
-      defaultCut = maxDuration;
+  function handlePlayerReady(player: ReactPlayer) {
+    const duration = player.getDuration();
+    let defaultCut = duration;
+    if (duration > maxCutDuration) {
+      defaultCut = maxCutDuration;
     }
 
-    setCutSettings({ ...cutSettings, max: player.duration || maxDuration, start: 0, end: defaultCut, duration: defaultCut });
+    setCutSettings({ ...cutSettings, max: duration || maxCutDuration, start: 0, end: defaultCut, duration: defaultCut });
   }
 
   // if (loading) {
@@ -234,10 +221,10 @@ function VideoStudio() {
    * Tell wether or not the user can launch the job
    */
   function canRunJob(): ICanRunJobResult {
-    if (cutSettings.duration > maxDuration) {
+    if (cutSettings.duration > maxCutDuration) {
       return {
         canRun: false,
-        reason: t('studio.tooLongCut').replace('%maxDuration%', String(maxDuration)),
+        reason: t('studio.tooLongCut').replace('%maxDuration%', String(maxCutDuration)),
       };
     }
 
@@ -264,15 +251,19 @@ function VideoStudio() {
       <div className="row">
         <div className="col-lg-6">
           <h2>{t('studio.cutTitle')}</h2>
-          <div className="plyr__video-embed" id="player">
-            <iframe
-              title="plyr"
-              src={`${url}?origin=https://plyr.io&amp;iv_load_policy=3&amp;modestbranding=1&amp;playsinline=1&amp;showinfo=0&amp;rel=0&amp;enablejsapi=1`}
-              allowFullScreen
-              allowTransparency
-              allow="autoplay"
-            ></iframe>
-          </div>
+          <ReactPlayer
+            url={url}
+            playing={playing}
+            ref={(player) => setPlayer(player!)}
+            volume={0.5}
+            controls={true}
+            width={'100%'}
+            progressInterval={100}
+            onReady={handlePlayerReady}
+            onProgress={(state) => {
+              handlePlayerProgress(state.playedSeconds);
+            }}
+          />
 
           {/* <div className="row">
             <Slider
@@ -295,7 +286,7 @@ function VideoStudio() {
             <div className="row">
               <div className="form-group">
                 <label>{t('studio.currentTime')}</label>
-                <input type="number" step="0.1" value={playerTime} max={maxDuration} min={0} className="form-control" disabled />
+                <input type="number" step="0.1" value={playerTime} max={maxCutDuration} min={0} className="form-control" disabled />
               </div>
               <div className="col-6 d-flex align-items-center justify-content-center">
                 <label htmlFor="preview-check">{t('studio.previewMode')}</label>
@@ -346,7 +337,6 @@ function VideoStudio() {
                   step="0.1"
                   className="form-control"
                   onChange={(e) => {
-                    console.log(e.target.value);
                     setTime(parseFloat(e.target.value), 'end');
                   }}
                 />
