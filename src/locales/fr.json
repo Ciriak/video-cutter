@@ -35,5 +35,10 @@
     "converting": "Conversion",
     "cleaning": "Nettoyage",
     "done": "Terminé"
+  },
+  "error": {
+    "incidentInProgress": "Incident en cours",
+    "incidentInProgressDesc": "Suite a un soucis technique, notre serveur est momentanement indisponible.\nNous mettons tout en oeuvre pour le rétablir au plus vite.\nVeuilez nous excuser pour la gêne occasionée.\nRéesayez dans quelques minutes !",
+    "serverUnavailable": "Serveur indisponible"
   }
 }

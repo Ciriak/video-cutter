@@ -1,5 +1,10 @@
 .video-studio {
   margin-top: 18px;
+  .tool-btn {
+    min-width: 75px;
+    display: flex;
+    justify-content: center;
+  }
   .work-progress {
     opacity: 0;
     transition-duration: 0.3s;

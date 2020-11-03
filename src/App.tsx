@@ -3,6 +3,7 @@ import { Switch, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import LinkForm from './components/LinkForm';
 import VideoStudio from './components/VideoStudio';
+import ErrorAlert from './components/ErrorAlert';
 import ConnectorManager from './components/ConnectorManager';
 import { useTranslation } from 'react-i18next';
 function App() {
@@ -23,6 +24,8 @@ function App() {
           <NavBar />
 
           <div className="content-wrapper">
+            <ErrorAlert />
+
             <Switch>
               {/* <Route path="/about">
                 <About />

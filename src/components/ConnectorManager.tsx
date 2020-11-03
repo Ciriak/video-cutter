@@ -9,12 +9,29 @@ const wsAddress = process.env.REACT_APP_WS_ADDRESS || 'ws://localhost:8080';
 function ConnectorManager() {
   const [connector, setConnector] = useRecoilState(connectorState);
   const [, setJob] = useRecoilState<IJobState>(jobState);
-  useEffect(() => {
-    if (!connector.connected) {
+  useEffect(
+    () => {
       let ws: WebSocket | undefined;
-      ws = new WebSocket(wsAddress);
+      if (!connector.connected) {
+        ws = new WebSocket(wsAddress);
+      }
+
+      if (!ws) {
+        return;
+      }
+
       ws.onopen = () => {
-        setConnector({ ...connector, ws, connected: true });
+        console.log('Connected');
+        setConnector({ ...connector, ws, connected: true, error: false });
+      };
+
+      ws.onerror = () => {
+        console.error('Connection error');
+        setConnector({
+          ...connector,
+          error: true,
+        });
+        console.log(connector);
       };
 
       ws.onmessage = (rawData) => {
@@ -31,12 +48,14 @@ function ConnectorManager() {
       };
 
       ws.onclose = () => {
-        setConnector({ ...connector, ws: undefined, connected: false });
+        console.error('Connection closed');
+        setConnector({ ...connector, ws: undefined, connected: false, error: true });
         ws = undefined;
       };
-    }
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    []
+  );
 
   return null;
 }

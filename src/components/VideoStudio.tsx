@@ -101,28 +101,6 @@ function VideoStudio() {
   }
 
   /**
-   * Called when the slider range is modified
-   * @param e
-   * @param value
-   */
-  // function handleSliderChange(e: React.ChangeEvent<{}>, value: number | number[]) {
-  //   e.preventDefault();
-  //   //force an array
-  //   if (!Array.isArray(value)) {
-  //     value = [value];
-  //   }
-
-  //   //detect wich value has moved, the start of the end
-  //   let val: 'start' | 'end' = 'end';
-  //   if (value[0] !== cutSettings.start) {
-  //     val = 'start';
-  //     setTime(value[0], val);
-  //   } else {
-  //     setTime(value[1], val);
-  //   }
-  // }
-
-  /**
    * Set the duration and apply the correct time
    * @param duration
    */
@@ -176,16 +154,6 @@ function VideoStudio() {
 
     setCutSettings({ ...cutSettings, max: duration || maxCutDuration, start: 0, end: defaultCut, duration: defaultCut });
   }
-
-  // if (loading) {
-  //   return (
-  //     <div className="video-studio flex container">
-  //       <div className="align-items-center h-100">
-  //         <p>Loading...</p>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   function startCut() {
     setJob({ ...job, state: 'waiting', active: true, progress: 0 });
@@ -264,21 +232,6 @@ function VideoStudio() {
               handlePlayerProgress(state.playedSeconds);
             }}
           />
-
-          {/* <div className="row">
-            <Slider
-              value={[cutSettings.start, cutSettings.end]}
-              min={cutSettings.min}
-              max={cutSettings.max}
-              onChange={(e, value) => {
-                handleSliderChange(e, value);
-              }}
-              valueLabelDisplay="auto"
-              aria-labelledby="range-slider"
-
-              // marks={marks}
-            />
-          </div> */}
         </div>
         <div className="col-lg-6">
           <div className="card">
@@ -298,7 +251,7 @@ function VideoStudio() {
               <div className="input-group col">
                 <div className="input-group-prepend">
                   <button
-                    className="btn"
+                    className="btn tool-btn"
                     onClick={() => {
                       setTime(playerTime, 'start');
                     }}
@@ -321,7 +274,7 @@ function VideoStudio() {
               <div className="input-group col">
                 <div className="input-group-prepend">
                   <button
-                    className="btn"
+                    className="btn tool-btn"
                     onClick={() => {
                       setTime(playerTime, 'end');
                     }}
@@ -344,8 +297,8 @@ function VideoStudio() {
             </div>
             <div className="row">
               <div className="input-group col-6">
-                <div className="input-group-prepend">
-                  <span className="input-group-text">{t('studio.duration')}</span>
+                <div className="input-group-prepend text-center">
+                  <span className="input-group-text tool-btn">{t('studio.duration')}</span>
                 </div>
                 <input
                   type="number"
@@ -360,7 +313,7 @@ function VideoStudio() {
               </div>
             </div>
             <hr></hr>
-            {!job.fileUrl && (
+            {!job.fileUrl && !connector.error && (
               <>
                 {job.state !== 'done' && (
                   <>
@@ -381,7 +334,7 @@ function VideoStudio() {
                 {job.state === 'done' && (
                   //DONE BTN
                   <>
-                    <a href={getFileUrlForJob(job.id)} rel="noopener noreferrer" target="_blank">
+                    <a href={getFileUrlForJob(job.id)} rel="noopener noreferrer" target="_blank" download>
                       <button className={classNames('btn btn-success btn-lg btn-block mb-5')} type="button">
                         <span>
                           {t('studio.download')} <i className="fa fa-cloud-download-alt "></i>
