@@ -36,3 +36,35 @@ export function stringAsSeconds(value: string): number {
   }
   return moment.duration(value).asSeconds();
 }
+
+export const exampleVideos: {
+  title: string;
+  url: string;
+  thumbnailUrl: string;
+}[] = [
+  {
+    thumbnailUrl: '',
+    title: 'Home',
+    url: 'https://www.youtube.com/watch?v=lsoLYWTzqSY',
+  },
+  {
+    thumbnailUrl: '',
+    title: 'Dj groove',
+    url: 'https://www.youtube.com/watch?v=glS_9h80ErE',
+  },
+  {
+    thumbnailUrl: '',
+    title: 'Rush hour',
+    url: 'https://www.youtube.com/watch?v=JpZca8I2QEQ',
+  },
+  {
+    thumbnailUrl: '',
+    title: 'Nyakusa',
+    url: 'https://www.youtube.com/watch?v=uOnwmNxjpDQ',
+  },
+  {
+    thumbnailUrl: '',
+    title: 'Factorio',
+    url: 'https://www.youtube.com/watch?v=pWi2Oevq0LA',
+  },
+];

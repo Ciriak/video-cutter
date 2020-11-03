@@ -1,11 +1,11 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
-import LinkForm from './components/LinkForm';
 import VideoStudio from './components/VideoStudio';
 import ErrorAlert from './components/ErrorAlert';
 import ConnectorManager from './components/ConnectorManager';
 import { useTranslation } from 'react-i18next';
+import Welcome from './components/Welcome';
 function App() {
   //force focus on main input
   document.onclick = () => {
@@ -34,7 +34,7 @@ function App() {
                 <VideoStudio />
               </Route>
               <Route exact path="/">
-                <LinkForm />
+                <Welcome />
               </Route>
             </Switch>
           </div>
