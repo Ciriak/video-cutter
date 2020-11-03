@@ -49,7 +49,7 @@ function ConnectorManager() {
 
       ws.onclose = () => {
         console.error('Connection closed');
-        setConnector({ ...connector, ws: undefined, connected: false, error: true });
+        setConnector({ ...connector, ws: undefined, connected: false });
         ws = undefined;
       };
     },
