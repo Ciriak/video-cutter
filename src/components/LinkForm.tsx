@@ -2,15 +2,13 @@ import React, { useState } from 'react';
 import { exampleVideos, validateYouTubeUrl } from '../utils';
 import { Link, useHistory } from 'react-router-dom';
 import classNames from 'classnames';
-import { useRecoilState } from 'recoil';
-import { jobState } from '../atoms/job';
 import { defaultJobState } from '../interfaces/Job.interface';
 import { useTranslation } from 'react-i18next';
-
+import store from '../store';
 function LinkForm() {
   const [validState, setValidState] = useState<boolean>(true);
   const history = useHistory();
-  const [, setJob] = useRecoilState(jobState);
+
   const [t] = useTranslation();
   const exampleVideo = exampleVideos[Math.floor(Math.random() * exampleVideos.length)];
   const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,7 +19,7 @@ function LinkForm() {
 
     if (isValid) {
       // reset the previous work it there was one
-      setJob({ ...defaultJobState });
+      store.job = { ...defaultJobState };
 
       history.push('/link?url=' + url);
     }

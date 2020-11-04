@@ -4,14 +4,12 @@ import query from 'query-string';
 import { getFileUrlForJob, validateYouTubeUrl } from '../utils';
 import classNames from 'classnames';
 import '../styles/video-studio.scss';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { connectorState } from '../atoms/connector';
-import { jobState } from '../atoms/job';
-import { IJobState } from '../interfaces/Job.interface';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ReactPlayer from 'react-player';
+
+import store from '../store';
 
 const maxCutDuration = 600; // 10min
 const siteKey = process.env.REACT_APP_HCAPTCHA_SITE_KEY || '10000000-ffff-ffff-ffff-000000000001';
@@ -40,12 +38,13 @@ function VideoStudio() {
   const history = useHistory();
   const [t] = useTranslation();
   const url = String(parse.url);
-  const connector = useRecoilValue(connectorState);
   // const [loading, setLoading] = useState(true);
   const [playerTime, setPlayerTime] = useState<number>(0);
   const [playing, setPlaying] = useState<boolean>(true);
   const [previewMode, setPreviewMode] = useState<boolean>(savedPreviewMode);
   const [player, setPlayer] = useState<ReactPlayer>();
+
+  const job = store.job;
   const [cutSettings, setCutSettings] = useState<ICutSettings>({
     start: 0,
     end: 60,
@@ -56,7 +55,6 @@ function VideoStudio() {
     type: savedType,
   });
 
-  const [job, setJob] = useRecoilState<IJobState>(jobState);
   useEffect(() => {
     function handleError() {
       history.push('/');
@@ -182,19 +180,15 @@ function VideoStudio() {
   }
 
   function startCut() {
-    setJob({ ...job, state: 'waiting', active: true, progress: 0 });
-    connector.ws?.send(
-      JSON.stringify({
-        type: 'requestJob',
-        data: {
-          url: url,
-          start: cutSettings.start,
-          end: cutSettings.end,
-          type: cutSettings.type,
-          verificationToken: cutSettings.verificationToken,
-        },
-      })
-    );
+    store.job = { ...job, state: 'waiting', active: true, progress: 0 };
+
+    store.connector.emit('requestJob', {
+      url: url,
+      start: cutSettings.start,
+      end: cutSettings.end,
+      type: cutSettings.type,
+      verificationToken: cutSettings.verificationToken,
+    });
   }
 
   /**
@@ -399,7 +393,7 @@ function VideoStudio() {
               </div>
             </div>
             <hr></hr>
-            {!job.fileUrl && !connector.error && (
+            {!job.fileUrl && store.connector.socket?.connected && (
               <>
                 {job.state !== 'done' && (
                   <>

@@ -3,10 +3,13 @@ import { Switch, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import VideoStudio from './components/VideoStudio';
 import ErrorAlert from './components/ErrorAlert';
-import ConnectorManager from './components/ConnectorManager';
 import { useTranslation } from 'react-i18next';
 import Welcome from './components/Welcome';
+import useConnector from './hooks/useConnector';
+import store from './store';
 function App() {
+  store.connector = useConnector();
+
   //force focus on main input
   document.onclick = () => {
     const inp = document.getElementById('link-input');
@@ -18,14 +21,13 @@ function App() {
 
   return (
     <>
-      <ConnectorManager />
+      {/* <ConnectorManager /> */}
       <div className="App">
         <div className="page-wrapper with-navbar">
           <NavBar />
 
           <div className="content-wrapper">
             <ErrorAlert />
-
             <Switch>
               {/* <Route path="/about">
                 <About />

@@ -5,7 +5,6 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import halfmoon from 'halfmoon';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { RecoilRoot } from 'recoil';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
@@ -36,11 +35,9 @@ i18n
 
 ReactDOM.render(
   <React.StrictMode>
-    <RecoilRoot>
-      <Router>
-        <App />
-      </Router>
-    </RecoilRoot>
+    <Router>
+      <App />
+    </Router>
   </React.StrictMode>,
   document.getElementById('root')
 );
