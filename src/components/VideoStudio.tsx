@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import ReactPlayer from 'react-player';
 
 import store from '../store';
+import { IJobState } from '../interfaces/Job.interface';
 
 const maxCutDuration = 600; // 10min
 const siteKey = process.env.REACT_APP_HCAPTCHA_SITE_KEY || '10000000-ffff-ffff-ffff-000000000001';
@@ -180,8 +181,6 @@ function VideoStudio() {
   }
 
   function startCut() {
-    store.job = { ...job, state: 'waiting', active: true, progress: 0 };
-
     store.connector.emit('requestJob', {
       url: url,
       start: cutSettings.start,
@@ -189,6 +188,8 @@ function VideoStudio() {
       type: cutSettings.type,
       verificationToken: cutSettings.verificationToken,
     });
+
+    store.job = { ...job, state: 'waiting', active: true, progress: 0 };
   }
 
   /**
@@ -253,16 +254,28 @@ function VideoStudio() {
       };
     }
 
-    // can retry after an error
-    if (job.state === 'error') {
+    if (job.active) {
       return {
-        canRun: true,
+        canRun: false,
       };
     }
 
     return {
       canRun: false,
     };
+  }
+
+  function getButtonLabel(job: IJobState) {
+    switch (job.state) {
+      case 'waiting':
+        return t('state.waiting');
+      case 'idle':
+        return t('studio.download');
+      case 'error':
+        return t('commons.retry');
+      default:
+        return String(job.state);
+    }
   }
 
   return (
@@ -407,11 +420,9 @@ function VideoStudio() {
                       className={classNames('btn btn-primary btn-lg btn-block mb-5')}
                       disabled={!canRunJob().canRun}
                       type="button"
-                      onClick={startCut}
+                      onClick={() => startCut()}
                     >
-                      {job.state !== 'idle' && <span>{t('state.' + job.state)}</span>}
-                      {job.state === 'idle' && <span>{t('studio.download')}</span>}
-                      {job.state === 'error' && <span>{t('commons.retry')}</span>}
+                      <span>{getButtonLabel(job)}</span>
                     </button>
                   </>
                 )}
@@ -451,12 +462,24 @@ function VideoStudio() {
                     )}
 
                     {job.state === 'error' && (
-                      <span data-toggle="tooltip" data-title="An error hapenned">
+                      <span data-toggle="tooltip" data-title={t('studio.anErrorHappened')}>
                         <i className="fa fa-exclamation-circle text-danger font-size-16"></i>
                       </span>
                     )}
                   </span>
                 </div>
+                {job.queuePosition && (
+                  <div className="position-hint row text-muted disabled">
+                    <small
+                      className={classNames({
+                        active: job.queuePosition,
+                      })}
+                    >
+                      <i className="fa fa-clock flashing"></i>
+                      {` ${t('studio.positionInfo').replace('%position%', String(job.queuePosition))}`}
+                    </small>
+                  </div>
+                )}
 
                 {job.state === 'done' && (
                   <div className="text-right">

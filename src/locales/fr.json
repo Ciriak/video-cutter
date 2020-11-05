@@ -21,7 +21,6 @@
     "currentTime": "Timer actuel",
     "previewMode": "Mode preview",
     "setCutStart": "Définir début",
-
     "setCutEnd": "Définir fin",
     "downloadMp3": "Télécharger en tant que Mp3 (audio seulement)",
     "start": "Début",
@@ -31,7 +30,8 @@
     "needToResolveCaptcha": "Vous devez dabord résoudre le captcha",
     "anErrorHappened": "Une erreur s'est produite",
     "anotherVideo": "Découper une autre vidéo",
-    "tooLongCut": "La durée du clip ne peut dépassed %maxDuration% secondes"
+    "tooLongCut": "La durée du clip ne peut dépassed %maxDuration% secondes",
+    "positionInfo": "position : %position%"
   },
   "state": {
     "idle": "idle",

@@ -29,7 +29,9 @@
     "download": "Download",
     "needToResolveCaptcha": "You need to resolve the captcha first",
     "anErrorHappened": "An error happened",
-    "anotherVideo": "Cut another video"
+    "anotherVideo": "Cut another video",
+    "tooLongCut": "The clip length cannot exceed %maxDuration% seconds",
+    "positionInfo": "position : %position%"
   },
   "state": {
     "idle": "Idle",

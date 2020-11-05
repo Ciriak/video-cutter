@@ -14,7 +14,7 @@ export function validateYouTubeUrl(url: string): boolean {
 const serverAddress = process.env.REACT_APP_SERVER_ADDRESS || 'http://localhost:8080';
 
 export function getFileUrlForJob(jobId: string, type: 'video' | 'mp3') {
-  let url = serverAddress + '/file/' + jobId + '_cut';
+  let url = serverAddress + '/file/' + jobId;
   if (type === 'mp3') {
     return url + '?format=' + type;
   }

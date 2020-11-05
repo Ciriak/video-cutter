@@ -9,6 +9,7 @@ export interface IJobState {
    * Final file url
    */
   fileUrl?: string;
+  queuePosition?: number;
 }
 
 export interface IJobOptions {
