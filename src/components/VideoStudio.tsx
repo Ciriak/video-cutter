@@ -202,10 +202,6 @@ function VideoStudio() {
       newSettings.type = 'mp3';
     }
 
-    if (newSettings.type === 'mp3') {
-      changePreviewMode(false);
-    }
-
     localStorage.setItem('ytct_type', newSettings.type);
 
     setCutSettings(newSettings);
