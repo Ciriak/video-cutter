@@ -91,7 +91,7 @@ function VideoStudio() {
     const newSettings = { ...cutSettings };
     newSettings[pos] = value;
 
-    if (newSettings.start > newSettings.end || newSettings.end < newSettings.start) {
+    if (newSettings.start > newSettings.end) {
       newSettings.end = newSettings.start + 1;
     }
 
@@ -226,6 +226,13 @@ function VideoStudio() {
    * Tell wether or not the user can launch the job
    */
   function canRunJob(): ICanRunJobResult {
+    if (store.connector.error) {
+      return {
+        canRun: false,
+        reason: t('error.serverUnavailable'),
+      };
+    }
+
     if (cutSettings.duration > maxCutDuration) {
       return {
         canRun: false,
@@ -389,7 +396,7 @@ function VideoStudio() {
               </div>
             </div>
             <hr></hr>
-            {!job.fileUrl && store.connector.socket?.connected && (
+            {!job.fileUrl && (
               <>
                 {job.state !== 'done' && (
                   <>

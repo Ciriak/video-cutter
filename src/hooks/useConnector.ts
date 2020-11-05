@@ -5,7 +5,7 @@ import store from '../store';
 const wsAddress = process.env.REACT_APP_WS_ADDRESS || 'ws://localhost:8080';
 const useConnector = () => {
   const [activeSocket, setSocket] = useState<SocketIOClient.Socket>();
-
+  const [error, setError] = useState<boolean>(false);
   useEffect(() => {
     if (activeSocket) {
       return;
@@ -14,6 +14,7 @@ const useConnector = () => {
 
     socket.on('connect', () => {
       setSocket(socket);
+      setError(false)
     });
 
     socket.on('disconnect', () => {
@@ -32,7 +33,8 @@ const useConnector = () => {
       }
     });
 
-    socket.on('error', () => {
+    socket.on('connect_error', () => {
+      setError(true);
       console.error('Connection error');
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -47,7 +49,7 @@ const useConnector = () => {
     }
   }
 
-  return { socket: activeSocket, emit };
+  return { socket: activeSocket, emit, error };
 };
 
 export default useConnector;

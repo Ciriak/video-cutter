@@ -28,6 +28,7 @@ function App() {
 
           <div className="content-wrapper">
             <ErrorAlert />
+
             <Switch>
               {/* <Route path="/about">
                 <About />

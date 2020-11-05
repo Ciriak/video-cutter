@@ -4,10 +4,13 @@ const global: {
   connector: {
     socket?: SocketIOClient.Socket;
     emit?: any;
+    error: boolean;
   };
   job: IJobState;
 } = {
-  connector: {},
+  connector: {
+    error: false
+  },
   job: defaultJobState,
 };
 export default global;
