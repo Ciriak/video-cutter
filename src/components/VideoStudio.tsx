@@ -8,7 +8,6 @@ import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ReactPlayer from 'react-player';
-
 import store from '../store';
 import { IJobState } from '../interfaces/Job.interface';
 
@@ -63,7 +62,7 @@ function VideoStudio() {
     //return to main page if url invalid
     if (!validateYouTubeUrl(url)) {
       handleError();
-    } else {
+      return;
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -451,7 +450,7 @@ function VideoStudio() {
                   </div>
                   <span className="progress-group-label">
                     {job.state === 'done' && <i className="fa fa-check-circle text-success font-size-16"></i>}
-                    {(job.state === 'waiting' || job.state === 'downloading' || job.state === 'converting') && (
+                    {(job.state === 'starting' || job.state === 'waiting' || job.state === 'downloading' || job.state === 'converting') && (
                       <i className="fa fa-circle-notch text-primary font-size-16 rotating"></i>
                     )}
 

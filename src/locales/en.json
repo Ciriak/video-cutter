@@ -13,7 +13,10 @@
     "example": "Example",
     "madeBy": "Made by",
     "or": "or",
-    "restart": "restart"
+    "restart": "restart",
+    "changeLanguage": "change language",
+    "socialIntensiveTitle": "You like Youtube Cutter ?",
+    "socialIntensiveContent": "Help us by sharing us on the social medias ! ❤️"
   },
   "studio": {
     "cutTitle": "Cut a Youtube video",
@@ -47,5 +50,10 @@
     "incidentInProgress": "Incident in progress",
     "incidentInProgressDesc": "Due to a technical issue, the server in currently unavailable, it will be back soon !\nPlease try again in  a few minutes",
     "serverUnavailable": "Server unavailable"
+  },
+  "lang": {
+    "fr": "French",
+    "en": "English",
+    "es": "Spanish"
   }
 }

@@ -4,26 +4,3 @@
   background-image: url('./dot.png');
   background-repeat: repeat;
 }
-
-/* limit the player max size */
-.plyr {
-  max-height: 50vh;
-}
-
-footer {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  padding: 0px 10px;
-  background-color: rgba($color: #000000, $alpha: 0.4);
-  font-size: 0.9rem;
-  text-align: right;
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 3px;
-  color: #868686;
-  cursor: default;
-  transition-duration: 0.5s;
-  &:hover {
-    color: inherit;
-  }
-}

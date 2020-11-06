@@ -13,7 +13,10 @@
     "example": "Exemple",
     "madeBy": "Créé par",
     "or": "ou",
-    "restart": "recommencer"
+    "restart": "recommencer",
+    "changeLanguage": "changer la langue",
+    "socialIntensiveTitle": "Vous aimez Youtube Cutter ?",
+    "socialIntensiveContent": "Aidez-nous en nous partageant sur les réseaux sociaux ! ❤️"
   },
   "studio": {
     "cutTitle": "Découper une vidéo Youtube",
@@ -47,5 +50,10 @@
     "incidentInProgress": "Incident en cours",
     "incidentInProgressDesc": "Suite à un soucis technique, notre serveur est momentanement indisponible.\nNous mettons tout en oeuvre pour le rétablir au plus vite.\nVeuilez nous excuser pour la gêne occasionée.\nRéesayez dans quelques minutes !",
     "serverUnavailable": "Serveur indisponible"
+  },
+  "lang": {
+    "fr": "Français",
+    "en": "Anglais",
+    "es": "Espagnol"
   }
 }

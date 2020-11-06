@@ -1,4 +1,5 @@
 import moment from 'moment';
+
 export function validateYouTubeUrl(url: string): boolean {
   if (url !== undefined || url !== '') {
     var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
@@ -68,3 +69,8 @@ export const exampleVideos: {
     url: 'https://www.youtube.com/watch?v=pWi2Oevq0LA',
   },
 ];
+
+export function getLangFlag(lang: string) {
+  lang = String(lang.split('-')[0]);
+  return './flags/' + lang + '.png';
+}

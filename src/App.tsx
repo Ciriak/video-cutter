@@ -1,23 +1,40 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Switch, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import VideoStudio from './components/VideoStudio';
 import ErrorAlert from './components/ErrorAlert';
-import { useTranslation } from 'react-i18next';
 import Welcome from './components/Welcome';
 import useConnector from './hooks/useConnector';
 import store from './store';
+import halfmoon from 'halfmoon';
+import Footer from './components/Footer';
+import { useTranslation } from 'react-i18next';
+
+const socialIntensiveDelay = 20000;
+
 function App() {
   store.connector = useConnector();
-
-  //force focus on main input
-  document.onclick = () => {
-    const inp = document.getElementById('link-input');
-    if (!inp) return;
-    inp.focus();
-  };
-
   const [t] = useTranslation();
+
+  useEffect(() => {
+    setTimeout(() => {
+      showSocialIntensive();
+    }, socialIntensiveDelay);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
+   * Display an alert
+   */
+  function showSocialIntensive() {
+    console.log('tototo');
+    // Built-in function
+    halfmoon.initStickyAlert({
+      title: t('commons.socialIntensiveTitle'),
+      content: t('commons.socialIntensiveContent'),
+      timeShown: 30000,
+    });
+  }
 
   return (
     <>
@@ -25,7 +42,7 @@ function App() {
       <div className="App">
         <div className="page-wrapper with-navbar">
           <NavBar />
-
+          <div className="sticky-alerts"></div>
           <div className="content-wrapper">
             <ErrorAlert />
 
@@ -42,14 +59,7 @@ function App() {
             </Switch>
           </div>
         </div>
-        <footer>
-          <span className="credits">
-            {t('commons.madeBy')}{' '}
-            <a href="https://cyriaque.net" rel="noopener noreferrer" target="_blank">
-              Cyriaque Delaunay
-            </a>
-          </span>
-        </footer>
+        <Footer />
       </div>
     </>
   );
