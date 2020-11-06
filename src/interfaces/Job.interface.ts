@@ -1,7 +1,7 @@
 export interface IJobState {
   error: boolean;
   active: boolean;
-  state: 'idle' | 'waiting' | 'downloading' | 'error' | 'converting' | 'cleaning' | 'done';
+  state: 'idle' | 'waiting' | 'starting' | 'downloading' | 'error' | 'converting' | 'cleaning' | 'done';
   progress: number;
   id: string;
   options: IJobOptions;

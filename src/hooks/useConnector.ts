@@ -14,7 +14,7 @@ const useConnector = () => {
 
     socket.on('connect', () => {
       setSocket(socket);
-      setError(false)
+      setError(false);
     });
 
     socket.on('disconnect', () => {
@@ -25,6 +25,7 @@ const useConnector = () => {
       console.log(`[${message.type}] ${JSON.stringify(message.data)}`);
       switch (message.type) {
         case 'jobState':
+          console.log('updated', message);
           store.job = { ...message.data };
           break;
 

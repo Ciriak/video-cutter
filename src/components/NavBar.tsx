@@ -13,7 +13,7 @@ function NavBar() {
         <img src={logo} alt="logo" /> {t('title')}
       </Link>
 
-      <span className="navbar-text text-monospace">{t('commons.descriptionShort')}</span>
+      <span className="navbar-text text-monospace d-none d-md-block">{t('commons.descriptionShort')}</span>
 
       <ul className="navbar-nav">
         {/* <li className="nav-item">

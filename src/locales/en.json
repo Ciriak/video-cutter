@@ -35,11 +35,12 @@
   },
   "state": {
     "idle": "Idle",
-    "waiting": "Waiting",
-    "downloading": "Downloading",
+    "waiting": "Waiting...",
+    "starting": "Starting...",
+    "downloading": "Downloading...",
     "error": "Error",
-    "converting": "Converting",
-    "cleaning": "Cleaning",
+    "converting": "Converting...",
+    "cleaning": "Cleaning...",
     "done": "Done"
   },
   "error": {

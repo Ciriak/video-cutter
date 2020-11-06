@@ -35,11 +35,12 @@
   },
   "state": {
     "idle": "idle",
-    "waiting": "En attente",
-    "downloading": "Téléchargement",
+    "waiting": "En attente...",
+    "starting": "Démarrage...",
+    "downloading": "Téléchargement...",
     "error": "Erreur",
-    "converting": "Conversion",
-    "cleaning": "Nettoyage",
+    "converting": "Conversion...",
+    "cleaning": "Nettoyage...",
     "done": "Terminé"
   },
   "error": {
