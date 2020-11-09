@@ -26,7 +26,7 @@ function LinkForm() {
   };
 
   return (
-    <div className="video-link row align-items-center justify-content-center h-100">
+    <div className="video-link row align-items-center justify-content-center">
       <div className="card">
         <h2 className="card-title">{t('commons.title')}</h2>
         <p>{t('commons.description')}</p>

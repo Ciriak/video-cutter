@@ -226,6 +226,15 @@ function VideoStudio() {
    * Tell wether or not the user can launch the job
    */
   function canRunJob(): ICanRunJobResult {
+    // connecting
+    if (!store.connector.error && !store.connector.socket?.connected) {
+      return {
+        canRun: false,
+        reason: t('commons.connectionToTheServer'),
+      };
+    }
+
+    // connnection error
     if (store.connector.error) {
       return {
         canRun: false,
@@ -272,7 +281,7 @@ function VideoStudio() {
   }
 
   return (
-    <div className="video-studio flex container">
+    <div className="video-studio container mt-0 mt-sm-20">
       <div className="row">
         <div className="col-lg-6">
           <h2>{t('studio.cutTitle')}</h2>

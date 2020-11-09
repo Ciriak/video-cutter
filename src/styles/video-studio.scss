@@ -31,34 +31,4 @@
       opacity: 1;
     }
   }
-  .rotating {
-    animation: rotate 0.5s linear infinite;
-  }
-
-  .flashing {
-    animation: flash 1s linear infinite;
-  }
-}
-
-@keyframes rotate {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes flash {
-  0% {
-    opacity: 0.7;
-  }
-  50% {
-    opacity: 0.7;
-  }
-
-  75% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0.7;
-  }
 }

@@ -10,7 +10,7 @@ import halfmoon from 'halfmoon';
 import Footer from './components/Footer';
 import { useTranslation } from 'react-i18next';
 
-const socialIntensiveDelay = 20000;
+const socialIntensiveDelay = 30000;
 
 function App() {
   store.connector = useConnector();
@@ -27,7 +27,6 @@ function App() {
    * Display an alert
    */
   function showSocialIntensive() {
-    console.log('tototo');
     // Built-in function
     halfmoon.initStickyAlert({
       title: t('commons.socialIntensiveTitle'),

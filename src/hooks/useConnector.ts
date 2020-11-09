@@ -6,11 +6,22 @@ const wsAddress = process.env.REACT_APP_WS_ADDRESS || 'ws://localhost:8080';
 const useConnector = () => {
   const [activeSocket, setSocket] = useState<SocketIOClient.Socket>();
   const [error, setError] = useState<boolean>(false);
+
+  const maxAttempts = 4;
+
   useEffect(() => {
+    let tryCount = 0;
     if (activeSocket) {
       return;
     }
-    const socket = io(wsAddress);
+    const socket = io(wsAddress, {
+      autoConnect: true,
+      reconnectionAttempts: maxAttempts,
+    });
+
+    function connect() {
+      socket.connect();
+    }
 
     socket.on('connect', () => {
       setSocket(socket);
@@ -18,7 +29,7 @@ const useConnector = () => {
     });
 
     socket.on('disconnect', () => {
-      socket.connect();
+      connect();
     });
 
     socket.on('message', (message: ISocketMessage) => {
@@ -35,7 +46,10 @@ const useConnector = () => {
     });
 
     socket.on('connect_error', () => {
-      setError(true);
+      tryCount++;
+      if (tryCount === maxAttempts) {
+        setError(true);
+      }
       console.error('Connection error');
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

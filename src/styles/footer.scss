@@ -11,6 +11,13 @@ footer {
   color: #868686;
   cursor: default;
   transition-duration: 0.5s;
+  display: flex;
+  .footer-sec {
+    margin: auto 5px;
+  }
+  .footer-separator {
+    border-left: 1px #3c3c3c solid;
+  }
   button {
     background: transparent;
     border-style: none;

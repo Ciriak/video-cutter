@@ -1,0 +1,54 @@
+.mockup {
+  .mockup-img {
+    animation: float 4s infinite ease-in-out;
+    &.mockup-player {
+      animation-delay: 0.5s;
+    }
+    &.mockup-tools {
+      animation-delay: 0s;
+      transition-duration: 5s;
+    }
+  }
+
+  .shadow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .mockup-shadow {
+      animation: shadowFloat 4s infinite ease-in-out;
+      border: 2px #1a1d21 solid;
+      width: 60%;
+      &.mockup-player-shadow {
+        animation-delay: 0.5s;
+      }
+      &.mockup-tools-shadow {
+        animation-delay: 0s;
+        transition-duration: 5s;
+      }
+    }
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes shadowFloat {
+  0% {
+    transform: scaleX(1.1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scaleX(1.1);
+    opacity: 0.5;
+  }
+}

@@ -14,9 +14,14 @@
     "madeBy": "Créé par",
     "or": "ou",
     "restart": "recommencer",
-    "changeLanguage": "changer la langue",
+    "changeLanguage": "Changer la langue",
     "socialIntensiveTitle": "Vous aimez Youtube Cutter ?",
-    "socialIntensiveContent": "Aidez-nous en nous partageant sur les réseaux sociaux ! ❤️"
+    "socialIntensiveContent": "Aidez-nous en nous partageant sur les réseaux sociaux ! ❤️",
+    "serverStatus": "Statut du serveur",
+    "connected": "Connecté",
+    "connection": "Connexion...",
+    "offline": "Hors ligne",
+    "connectionToTheServer": "Connexion au serveur..."
   },
   "studio": {
     "cutTitle": "Découper une vidéo Youtube",

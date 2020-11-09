@@ -14,9 +14,14 @@
     "madeBy": "Made by",
     "or": "or",
     "restart": "restart",
-    "changeLanguage": "change language",
+    "changeLanguage": "Change language",
     "socialIntensiveTitle": "You like Youtube Cutter ?",
-    "socialIntensiveContent": "Help us by sharing us on the social medias ! ❤️"
+    "socialIntensiveContent": "Help us by sharing us on the social medias ! ❤️",
+    "serverStatus": "Server status",
+    "connected": "Connected",
+    "connection": "Connection...",
+    "offline": "Offline",
+    "connectionToTheServer": "Connecting to the server.."
   },
   "studio": {
     "cutTitle": "Cut a Youtube video",
