@@ -36,7 +36,7 @@ const useConnector = () => {
       console.log(`[${message.type}] ${JSON.stringify(message.data)}`);
       switch (message.type) {
         case 'jobState':
-          console.log('updated', message);
+          console.log('updated job state', message);
           store.job = { ...message.data };
           break;
 

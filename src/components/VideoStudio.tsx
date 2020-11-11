@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ReactPlayer from 'react-player';
 import store from '../store';
-import { IJobState } from '../interfaces/Job.interface';
+import { defaultJobState, IJobState } from '../interfaces/Job.interface';
 
 const maxCutDuration = 600; // 10min
 const siteKey = process.env.REACT_APP_HCAPTCHA_SITE_KEY || '10000000-ffff-ffff-ffff-000000000001';
@@ -56,6 +56,8 @@ function VideoStudio() {
   });
 
   useEffect(() => {
+    resetJob();
+
     function handleError() {
       history.push('/');
     }
@@ -67,6 +69,10 @@ function VideoStudio() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function resetJob() {
+    store.job = { ...defaultJobState };
+  }
 
   /**
    * Called when the user click on "restart"
@@ -179,7 +185,9 @@ function VideoStudio() {
     setCutSettings({ ...cutSettings, max: duration || maxCutDuration, start: 0, end: defaultCut, duration: defaultCut });
   }
 
-  function startCut() {
+  function startJob() {
+    store.job = { ...job, state: 'waiting', active: false, progress: 0, error: false };
+
     store.connector.emit('requestJob', {
       url: url,
       start: cutSettings.start,
@@ -187,8 +195,6 @@ function VideoStudio() {
       type: cutSettings.type,
       verificationToken: cutSettings.verificationToken,
     });
-
-    store.job = { ...job, state: 'waiting', active: true, progress: 0 };
   }
 
   /**
@@ -428,7 +434,7 @@ function VideoStudio() {
                       className={classNames('btn btn-primary btn-lg btn-block mb-5')}
                       disabled={!canRunJob().canRun}
                       type="button"
-                      onClick={() => startCut()}
+                      onClick={() => startJob()}
                     >
                       <span>{getButtonLabel(job)}</span>
                     </button>

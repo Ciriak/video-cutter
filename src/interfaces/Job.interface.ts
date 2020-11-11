@@ -6,6 +6,10 @@ export interface IJobState {
   id: string;
   options: IJobOptions;
   /**
+   * Final file name
+   */
+  fileName?: string;
+  /**
    * Final file url
    */
   fileUrl?: string;
