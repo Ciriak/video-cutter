@@ -188,7 +188,7 @@ function VideoStudio() {
       verificationToken: cutSettings.verificationToken,
     });
 
-    store.job = { ...job, state: 'waiting', active: false, progress: 0 };
+    store.job = { ...job, state: 'waiting', active: true, progress: 0 };
   }
 
   /**
