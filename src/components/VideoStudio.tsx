@@ -314,7 +314,7 @@ function VideoStudio() {
                 <input type="number" step="0.1" value={playerTime} max={maxCutDuration} min={0} className="form-control" disabled />
               </div>
               <div className="col-4 d-flex align-items-center justify-content-center">
-                <div className="custom-switch">
+                <div className="custom-switch" data-toggle="tooltip" data-title={t('studio.previewModeDesc')}>
                   <input
                     type="checkbox"
                     id="switch-preview"

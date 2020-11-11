@@ -28,6 +28,7 @@
     "cutSettings": "Paramètres de découpage",
     "currentTime": "Timer actuel",
     "previewMode": "Mode preview",
+    "previewModeDesc": "Lis en boucle sur l'interval sélectionné",
     "setCutStart": "Définir début",
     "setCutEnd": "Définir fin",
     "downloadMp3": "Télécharger en tant que Mp3 (audio seulement)",

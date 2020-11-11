@@ -28,6 +28,7 @@
     "cutSettings": "Cut settings",
     "currentTime": "Current time",
     "previewMode": "Preview mode",
+    "previewModeDesc": "Loop on the cut interval",
     "setCutStart": "Set cut start",
     "setCutEnd": "Set cut end",
     "downloadMp3": "Download an an Mp3 file (audio only)",
