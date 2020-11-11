@@ -501,9 +501,9 @@ function VideoStudio() {
                 )}
               </>
             )}
-            <div className="row">
+            {/* <div className="row debug-info">
               <code>{JSON.stringify(store.job)}</code>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
