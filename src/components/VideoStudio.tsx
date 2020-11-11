@@ -43,6 +43,7 @@ function VideoStudio() {
   const [playing, setPlaying] = useState<boolean>(true);
   const [previewMode, setPreviewMode] = useState<boolean>(savedPreviewMode);
   const [player, setPlayer] = useState<ReactPlayer>();
+  const [showCaptcha, setShowCaptcha] = useState<boolean>(true);
 
   const job = store.job;
   const [cutSettings, setCutSettings] = useState<ICutSettings>({
@@ -71,14 +72,14 @@ function VideoStudio() {
   }, []);
 
   function resetJob() {
-    store.job = { ...defaultJobState };
+    store.setJob?.({ ...defaultJobState });
   }
 
   /**
    * Called when the user click on "restart"
    */
   function handleRestart() {
-    document.location.reload();
+    store.setJob?.({ ...store.job, state: 'idle', active: false, error: false, progress: 0 });
   }
 
   function changePreviewMode(active: boolean) {
@@ -151,6 +152,7 @@ function VideoStudio() {
    * @param token
    */
   function handleVerificationSuccess(token: string) {
+    setShowCaptcha(false); // hide captcha
     setCutSettings({ ...cutSettings, verificationToken: token });
   }
 
@@ -186,7 +188,7 @@ function VideoStudio() {
   }
 
   function startJob() {
-    store.job = { ...job, state: 'waiting', active: false, progress: 0, error: false };
+    store.setJob?.({ ...job, state: 'waiting', active: false, progress: 0, error: false });
 
     store.connector.emit('requestJob', {
       url: url,
@@ -427,7 +429,8 @@ function VideoStudio() {
               <>
                 {job.state !== 'done' && (
                   <>
-                    <HCaptcha theme={'dark'} sitekey={siteKey} onVerify={(token: string) => handleVerificationSuccess(token)} />
+                    {showCaptcha && <HCaptcha theme={'dark'} sitekey={siteKey} onVerify={(token: string) => handleVerificationSuccess(token)} />}
+
                     {/* // BASE BTN */}
                     <button
                       {...getTooltipProps(canRunJob())}

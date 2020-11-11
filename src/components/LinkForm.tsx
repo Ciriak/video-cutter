@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { exampleVideos, validateYouTubeUrl } from '../utils';
 import { Link, useHistory } from 'react-router-dom';
 import classNames from 'classnames';
@@ -7,10 +7,14 @@ import { useTranslation } from 'react-i18next';
 import store from '../store';
 function LinkForm() {
   const [validState, setValidState] = useState<boolean>(true);
+  const [exampleVideo, setExampleVideo] = useState<any>();
   const history = useHistory();
 
   const [t] = useTranslation();
-  const exampleVideo = exampleVideos[Math.floor(Math.random() * exampleVideos.length)];
+  useEffect(() => {
+    const ex = exampleVideos[Math.floor(Math.random() * exampleVideos.length)];
+    setExampleVideo(ex);
+  }, []);
   const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     const url = e.target.value;
@@ -19,7 +23,7 @@ function LinkForm() {
 
     if (isValid) {
       // reset the previous work it there was one
-      store.job = { ...defaultJobState };
+      store.setJob?.({ ...defaultJobState });
 
       history.push('/link?url=' + url);
     }
@@ -42,9 +46,11 @@ function LinkForm() {
           }}
           autoFocus
         />
-        <small className="float-right mt-5">
-          {t('commons.example')}: <Link to={`/link?url=${exampleVideo.url}`}>{exampleVideo.url}</Link>
-        </small>
+        {exampleVideo && (
+          <small className="float-right mt-5">
+            {t('commons.example')}: <Link to={`/link?url=${exampleVideo.url}`}>{exampleVideo.url}</Link>
+          </small>
+        )}
       </div>
     </div>
   );

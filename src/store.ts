@@ -1,5 +1,5 @@
 import { defaultJobState, IJobState } from './interfaces/Job.interface';
-
+import React from 'react';
 const global: {
   connector: {
     socket?: SocketIOClient.Socket;
@@ -7,9 +7,10 @@ const global: {
     error: boolean;
   };
   job: IJobState;
+  setJob?: React.Dispatch<React.SetStateAction<IJobState>>;
 } = {
   connector: {
-    error: false
+    error: false,
   },
   job: defaultJobState,
 };

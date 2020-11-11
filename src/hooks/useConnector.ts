@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
+import { defaultJobState } from '../interfaces/Job.interface';
 import { ISocketMessage } from '../interfaces/Socket.interface';
 import store from '../store';
 const wsAddress = process.env.REACT_APP_WS_ADDRESS || 'ws://localhost:8080';
 const useConnector = () => {
   const [activeSocket, setSocket] = useState<SocketIOClient.Socket>();
   const [error, setError] = useState<boolean>(false);
-
+  const [job, setJob] = useState(defaultJobState);
+  store.job = job;
+  store.setJob = setJob;
   const maxAttempts = 4;
 
   useEffect(() => {
@@ -37,7 +40,7 @@ const useConnector = () => {
       switch (message.type) {
         case 'jobState':
           console.log('updated job state', message);
-          store.job = { ...message.data };
+          setJob({ ...message.data });
           break;
 
         default:
