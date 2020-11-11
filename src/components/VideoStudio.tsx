@@ -262,6 +262,12 @@ function VideoStudio() {
       };
     }
 
+    if (job.state === 'error') {
+      return {
+        canRun: true,
+      };
+    }
+
     return {
       canRun: false,
     };
@@ -495,6 +501,9 @@ function VideoStudio() {
                 )}
               </>
             )}
+            <div className="row">
+              <code>{JSON.stringify(store.job)}</code>
+            </div>
           </div>
         </div>
       </div>
