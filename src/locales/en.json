@@ -21,7 +21,8 @@
     "connected": "Connected",
     "connection": "Connection...",
     "offline": "Offline",
-    "connectionToTheServer": "Connecting to the server.."
+    "connectionToTheServer": "Connecting to the server..",
+    "selectFile": "Select a file"
   },
   "studio": {
     "cutTitle": "Cut a Youtube video",
@@ -36,6 +37,7 @@
     "duration": "Duration",
     "end": "End",
     "download": "Download",
+    "cut": "Cut the clip",
     "needToResolveCaptcha": "You need to resolve the captcha first",
     "anErrorHappened": "An error happened",
     "anotherVideo": "Cut another video",
@@ -44,12 +46,10 @@
   },
   "state": {
     "idle": "Idle",
-    "waiting": "Waiting...",
+    "working": "Working...",
     "starting": "Starting...",
     "downloading": "Downloading...",
     "error": "Error",
-    "converting": "Converting...",
-    "cleaning": "Cleaning...",
     "done": "Done"
   },
   "error": {

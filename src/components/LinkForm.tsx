@@ -1,40 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { exampleVideos, validateYouTubeUrl } from '../utils';
-import { Link, useHistory } from 'react-router-dom';
-import classNames from 'classnames';
-import { defaultJobState } from '../interfaces/Job.interface';
+import { exampleVideos } from '../utils';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import store from '../store';
+import useJob from '../hooks/useJob';
+
 function LinkForm() {
-  const [validState, setValidState] = useState<boolean>(true);
   const [exampleVideo, setExampleVideo] = useState<any>();
-  const history = useHistory();
+  const { setFile } = useJob();
 
   const [t] = useTranslation();
   useEffect(() => {
     const ex = exampleVideos[Math.floor(Math.random() * exampleVideos.length)];
     setExampleVideo(ex);
   }, []);
-  const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault();
-    const url = e.target.value;
-    const isValid = validateYouTubeUrl(url);
-    setValidState(isValid);
 
-    if (isValid) {
-      // reset the previous work it there was one
-      store.setJob?.({ ...defaultJobState });
-
-      history.push('/link?url=' + url);
+  async function handleFileSelected(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = event.target.files;
+    if (files && files[0]) {
+      setFile(files[0]);
     }
-  };
+  }
+
+  function selectFile() {
+    const inp = document.getElementById('link-dummy');
+    inp?.click();
+  }
 
   return (
     <div className="video-link row align-items-center justify-content-center">
       <div className="card">
         <h2 className="card-title">{t('commons.title')}</h2>
         <p>{t('commons.description')}</p>
-        <input
+        {/* <input
           id="link-input"
           type="text"
           className={classNames('form-control form-control-lg', {
@@ -45,6 +42,19 @@ function LinkForm() {
             handleLinkChange(e);
           }}
           autoFocus
+        /> */}
+        <div className="row">
+          <button className="btn btn-block btn-primary btn-lg" onClick={selectFile}>
+            {t('commons.selectFile')}
+          </button>
+        </div>
+        <input
+          type="file"
+          id="link-dummy"
+          className="link-dummy"
+          onChange={(e) => {
+            handleFileSelected(e);
+          }}
         />
         {exampleVideo && (
           <small className="float-right mt-5">

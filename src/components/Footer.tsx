@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import '../styles/footer.scss';
-import store from '../store';
 
 function Footer() {
   const availableLangs = ['fr', 'en'];
@@ -21,13 +20,6 @@ function Footer() {
         <a href="https://cyriaque.net" rel="noopener noreferrer" target="_blank">
           Cyriaque Delaunay
         </a>
-      </div>
-      <span className="footer-separator"></span>
-      <div className="server-state  footer-sec">
-        <span>{`${t('commons.serverStatus')}`} : </span>
-        {store.connector.socket?.connected && <span>{t('commons.connected')}</span>}
-        {!store.connector.socket?.connected && !store.connector.error && <span className="flashing">{t('commons.connection')}</span>}
-        {store.connector.error && <span className="text-danger">{t('commons.offline')}</span>}
       </div>
       <span className="footer-separator"></span>
       <div className="lang-manager footer-sec">

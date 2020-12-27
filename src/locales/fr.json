@@ -21,7 +21,8 @@
     "connected": "Connecté",
     "connection": "Connexion...",
     "offline": "Hors ligne",
-    "connectionToTheServer": "Connexion au serveur..."
+    "connectionToTheServer": "Connexion au serveur...",
+    "selectFile": "Sélectionner un fichier"
   },
   "studio": {
     "cutTitle": "Découper une vidéo Youtube",
@@ -36,6 +37,7 @@
     "duration": "Durée",
     "end": "Fin",
     "download": "Télécharger",
+    "cut": "Découper",
     "needToResolveCaptcha": "Vous devez dabord résoudre le captcha",
     "anErrorHappened": "Une erreur s'est produite",
     "anotherVideo": "Découper une autre vidéo",
@@ -44,12 +46,9 @@
   },
   "state": {
     "idle": "idle",
-    "waiting": "En attente...",
     "starting": "Démarrage...",
-    "downloading": "Téléchargement...",
     "error": "Erreur",
-    "converting": "Conversion...",
-    "cleaning": "Nettoyage...",
+    "working": "Découpage...",
     "done": "Terminé"
   },
   "error": {

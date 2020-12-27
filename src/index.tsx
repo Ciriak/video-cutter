@@ -11,6 +11,7 @@ import { initReactI18next } from 'react-i18next';
 // locales
 import frLocales from './locales/fr.json';
 import enLocales from './locales/en.json';
+import { RecoilRoot } from 'recoil';
 
 const userLang = localStorage.getItem('ytct_lang') || navigator.language;
 
@@ -35,9 +36,11 @@ i18n
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <App />
-    </Router>
+    <RecoilRoot>
+      <Router>
+        <App />
+      </Router>
+    </RecoilRoot>
   </React.StrictMode>,
   document.getElementById('root')
 );
