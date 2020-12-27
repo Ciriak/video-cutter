@@ -1,4 +1,8 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Video cutter
+
+## Cut any video online using FFMPEG... no server needed !
+
+## [> Try it online <](http://video-cutter.tools/)
 
 ## Available Scripts
 
@@ -27,22 +31,9 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-## Env variables
+Made with [Halfmoon](https://www.gethalfmoon.com/) and [ffmpeg.wasm](https://github.com/ffmpegwasm/ffmpeg.wasm)
 
-### `REACT_APP_SERVER_ADDRESS`
+**TODO**
 
-File and worker server address and port
-
-ex: `http://toto.fr:2319`
-
-### `REACT_APP_WS_ADDRESS`
-
-Websocket server address and port
-
-ex: `ws://toto.fr:2319`
-
-### `REACT_APP_HCAPTCHA_SITE_KEY`
-
-Hcaptcha sitekey
-
-see : https://docs.hcaptcha.com/#localdev
+- Better error handling
+- Check file size cf: (https://github.com/ffmpegwasm/ffmpeg.wasm#what-is-the-maximum-size-of-input-file) because of some limitations
