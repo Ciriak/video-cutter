@@ -1,18 +1,11 @@
 export interface IJobState {
   error: boolean;
   active: boolean;
-  state: 'idle' | 'waiting' | 'starting' | 'downloading' | 'error' | 'converting' | 'cleaning' | 'done';
+  state: 'idle' | 'starting' | 'error' | 'working' | 'done';
   progress: number;
-  id: string;
   options: IJobOptions;
-  /**
-   * Final file name
-   */
-  fileName?: string;
-  /**
-   * Final file url
-   */
-  fileUrl?: string;
+  file?: File | null;
+  fileDownloadUrl?: string;
   queuePosition?: number;
 }
 
@@ -20,14 +13,19 @@ export interface IJobOptions {
   url: string;
   start: number;
   end: number;
+  duration: number;
+  max: number;
+  min: number;
   type: 'video' | 'mp3';
 }
 
 export const defaultJobState: IJobState = {
   active: false,
   error: false,
-  id: '',
   options: {
+    max: 0,
+    min: 0,
+    duration: 0,
     end: 0,
     start: 0,
     url: '',
@@ -35,4 +33,5 @@ export const defaultJobState: IJobState = {
   },
   progress: 0,
   state: 'idle',
+  file: null,
 };

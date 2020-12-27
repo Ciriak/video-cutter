@@ -1,20 +1,18 @@
 import React, { useEffect } from 'react';
-import { Switch, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
 import VideoStudio from './components/VideoStudio';
 import ErrorAlert from './components/ErrorAlert';
 import Welcome from './components/Welcome';
-import useConnector from './hooks/useConnector';
-import store from './store';
 import halfmoon from 'halfmoon';
 import Footer from './components/Footer';
 import { useTranslation } from 'react-i18next';
+import useJob from './hooks/useJob';
 
 const socialIntensiveDelay = 30000;
 
 function App() {
-  store.connector = useConnector();
   const [t] = useTranslation();
+  const { job } = useJob();
 
   useEffect(() => {
     setTimeout(() => {
@@ -38,24 +36,15 @@ function App() {
   return (
     <>
       {/* <ConnectorManager /> */}
+
       <div className="App">
         <div className="page-wrapper with-navbar">
           <NavBar />
           <div className="sticky-alerts"></div>
           <div className="content-wrapper">
             <ErrorAlert />
-
-            <Switch>
-              {/* <Route path="/about">
-                <About />
-              </Route> */}
-              <Route path="/link">
-                <VideoStudio />
-              </Route>
-              <Route exact path="/">
-                <Welcome />
-              </Route>
-            </Switch>
+            {job.file && <VideoStudio />}
+            {!job.file && <Welcome />}
           </div>
         </div>
         <Footer />

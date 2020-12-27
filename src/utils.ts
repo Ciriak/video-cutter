@@ -30,6 +30,18 @@ export function secondsAsString(seconds?: number): string {
   return moment(seconds, 'ss.SS').format('HH:mm:ss.SS').toString();
 }
 
+/**
+ * Return the type saved in the localstorage OR video by default
+ */
+export function getSavedConvertType(): 'video' | 'mp3' {
+  let savedType: any = String(localStorage.getItem('ytct_type')) || 'video';
+
+  if (savedType === '') {
+    savedType = 'video';
+  }
+  return savedType;
+}
+
 export function stringAsSeconds(value: string): number {
   // ensure that the milliseconds are provided
   if (value.indexOf('.') === -1) {

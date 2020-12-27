@@ -1,20 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router';
-import query from 'query-string';
-import { getFileUrlForJob, validateYouTubeUrl } from '../utils';
 import classNames from 'classnames';
 import '../styles/video-studio.scss';
-import HCaptcha from '@hcaptcha/react-hcaptcha';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ReactPlayer from 'react-player';
-import store from '../store';
-import { defaultJobState, IJobState } from '../interfaces/Job.interface';
-
-const maxCutDuration = 600; // 10min
-const siteKey = process.env.REACT_APP_HCAPTCHA_SITE_KEY || '10000000-ffff-ffff-ffff-000000000001';
+import { IJobState } from '../interfaces/Job.interface';
+import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
+import useJob from '../hooks/useJob';
+const ffmpeg = createFFmpeg({ log: true });
 const savedPreviewMode = localStorage.getItem('ytct_preview') === 'true' || false;
-const savedType: any = String(localStorage.getItem('ytct_type')) || 'video';
 
 interface ICutSettings {
   min: number;
@@ -33,53 +26,49 @@ interface ICanRunJobResult {
 }
 
 function VideoStudio() {
-  const location = useLocation();
-  const parse = query.parse(location.search);
-  const history = useHistory();
   const [t] = useTranslation();
-  const url = String(parse.url);
+  const [url, setUrl] = useState<string>('');
   // const [loading, setLoading] = useState(true);
   const [playerTime, setPlayerTime] = useState<number>(0);
-  const [playing, setPlaying] = useState<boolean>(true);
   const [previewMode, setPreviewMode] = useState<boolean>(savedPreviewMode);
   const [player, setPlayer] = useState<ReactPlayer>();
-  const [showCaptcha, setShowCaptcha] = useState<boolean>(true);
+  const [playerKey, setPlayerKey] = useState(String(Math.random() * 10));
 
-  const job = store.job;
-  const [cutSettings, setCutSettings] = useState<ICutSettings>({
-    start: 0,
-    end: 60,
-    duration: 60,
-    min: 0,
-    max: 10,
-    videoUrl: '',
-    type: savedType,
-  });
+  const { job, setProgress, setJob, setFile } = useJob();
 
   useEffect(() => {
-    resetJob();
-
-    function handleError() {
-      history.push('/');
-    }
-    //return to main page if url invalid
-    if (!validateYouTubeUrl(url)) {
-      handleError();
+    if (!job.file) {
       return;
     }
+
+    loadFile(job.file);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function resetJob() {
-    store.setJob?.({ ...defaultJobState });
+  function loadFile(file: File) {
+    setUrl(URL.createObjectURL(file));
   }
 
   /**
    * Called when the user click on "restart"
    */
   function handleRestart() {
-    store.setJob?.({ ...store.job, state: 'idle', active: false, error: false, progress: 0 });
+    setJob({ ...job, state: 'idle', active: false, error: false, progress: 0 });
+  }
+
+  function selectNewFile() {
+    handleRestart();
+    const dummy = document.getElementById('new-file-dummy');
+    dummy?.click();
+  }
+
+  async function handleFileSelected(event: React.ChangeEvent<HTMLInputElement>) {
+    const files = event.target.files;
+    if (files && files[0]) {
+      setFile(files[0]);
+      loadFile(files[0]);
+    }
   }
 
   function changePreviewMode(active: boolean) {
@@ -95,14 +84,12 @@ function VideoStudio() {
    */
   function setTime(value: number, pos: 'start' | 'end') {
     value = parseFloat(value.toFixed(2));
-    const newSettings = { ...cutSettings };
-    newSettings[pos] = value;
+    const newOptions = { ...job.options };
+    newOptions[pos] = value;
 
-    if (newSettings.start > newSettings.end) {
-      newSettings.end = newSettings.start + 1;
+    if (newOptions.start > newOptions.end) {
+      newOptions.end = newOptions.start + 1;
     }
-
-    newSettings.duration = parseFloat((newSettings.end - newSettings.start).toFixed(2));
     // player.currentTime = value;
 
     // ensure we cannot go more than the max duration setting
@@ -118,7 +105,11 @@ function VideoStudio() {
     //   newSettings.duration = maxDuration;
     // }
 
-    setCutSettings(newSettings);
+    newOptions.duration = newOptions.end - newOptions.start;
+
+    const updatedOptions = { ...job.options, ...newOptions };
+
+    setJob({ ...job, options: updatedOptions });
   }
 
   /**
@@ -137,23 +128,14 @@ function VideoStudio() {
    */
   function setDuration(duration: number) {
     duration = parseFloat(duration.toFixed(2));
-    if (duration > cutSettings.duration && cutSettings.end < cutSettings.max) {
+    if (duration > job.options.duration && job.options.end < job.options.max) {
       // if increment AND can increment
-      setTime(cutSettings.end + 1, 'end');
+      setTime(job.options.end + 1, 'end');
     }
-    if (duration < cutSettings.duration && cutSettings.end > cutSettings.min + 1) {
+    if (duration < job.options.duration && job.options.end > job.options.min + 1) {
       // if increment AND can increment
-      setTime(cutSettings.end - 1, 'end');
+      setTime(job.options.end - 1, 'end');
     }
-  }
-
-  /**
-   * Called when the captcha is completed
-   * @param token
-   */
-  function handleVerificationSuccess(token: string) {
-    setShowCaptcha(false); // hide captcha
-    setCutSettings({ ...cutSettings, verificationToken: token });
   }
 
   function handlePlayerProgress(progress: number) {
@@ -162,57 +144,133 @@ function VideoStudio() {
     //handle preview mode
     if (previewMode) {
       // force the time to be at least at the start
-      if (progress < cutSettings.start) {
-        player?.seekTo(cutSettings.start);
+      if (progress < job.options.start) {
+        player?.seekTo(job.options.start);
       }
       // ..and not after the end
-      if (progress > cutSettings.end) {
-        player?.seekTo(cutSettings.start);
+      if (progress > job.options.end) {
+        player?.seekTo(job.options.start);
       }
       // return to start
-      if (progress > cutSettings.end) {
-        player?.seekTo(cutSettings.start);
+      if (progress > job.options.end) {
+        player?.seekTo(job.options.start);
       }
-      setPlaying(true);
     }
   }
 
   function handlePlayerReady(player: ReactPlayer) {
     const duration = player.getDuration();
     let defaultCut = duration;
-    if (duration > maxCutDuration) {
-      defaultCut = maxCutDuration;
-    }
 
-    setCutSettings({ ...cutSettings, max: duration || maxCutDuration, start: 0, end: defaultCut, duration: defaultCut });
+    const newOptions = { ...job.options };
+
+    newOptions.end = job.options.end || defaultCut;
+    newOptions.duration = job.options.duration || defaultCut;
+    newOptions.min = job.options.min || 0;
+
+    const updatedOptions = { ...job.options, ...newOptions };
+
+    setJob({ ...job, options: updatedOptions });
   }
 
-  function startJob() {
-    store.setJob?.({ ...job, state: 'waiting', active: false, progress: 0, error: false });
+  async function startJob() {
+    if (job.active) {
+      return;
+    }
 
-    store.connector.emit('requestJob', {
-      url: url,
-      start: cutSettings.start,
-      end: cutSettings.end,
-      type: cutSettings.type,
-      verificationToken: cutSettings.verificationToken,
+    const file = job.file;
+    if (!file) {
+      return;
+    }
+
+    setJob({ ...job, active: true, progress: 0, state: 'starting' });
+
+    const fn = file.name.split('.');
+    const dlFileName = `${fn[0]}-ytc`;
+
+    let fileOutput = {
+      name: `${dlFileName}.mp4`,
+      type: 'video/mp4',
+    };
+
+    if (job.options.type === 'mp3') {
+      fileOutput = {
+        name: `${dlFileName}.mp3`,
+        type: 'audio/mp3',
+      };
+    }
+
+    const jobDuration = job.options.end - job.options.start;
+
+    if (!ffmpeg.isLoaded()) {
+      await ffmpeg.load();
+    }
+
+    ffmpeg.setProgress(({ ratio }) => {
+      setProgress(ratio);
     });
+
+    ffmpeg.FS('writeFile', 'overlay.png', await fetchFile('overlay.png'));
+    ffmpeg.FS('writeFile', file.name, await fetchFile(file));
+
+    await ffmpeg.run(
+      '-i',
+      file.name,
+      '-i',
+      'overlay.png',
+      '-t',
+      String(jobDuration),
+      '-ss',
+      String(job.options.start),
+      '-filter_complex',
+      "[0:v][1:v] overlay=10:10:enable='between(t,0,20)'",
+      fileOutput.name
+    );
+
+    // await ffmpeg.run('-i', 'test.avi', 'test.mp4');
+    // ffmpeg.FS('writeFile', name, await fetchFile(files[0]));
+    // await ffmpeg.run('-i', name, 'output.mp4');
+    // message.innerHTML = 'Complete transcoding';
+
+    const output = ffmpeg.FS('readFile', fileOutput.name);
+    const url = URL.createObjectURL(new Blob([output.buffer], { type: fileOutput.type }));
+
+    setJob({ ...job, active: false, progress: 100, state: 'done', fileDownloadUrl: url });
+    const link = document.createElement('a');
+
+    link.href = url;
+
+    link.download = `${fileOutput.name}`;
+    link.click();
+  }
+
+  /**
+   * Force a react player refresh
+   */
+  function refreshPlayer() {
+    const newKey = String(Math.random() * 10);
+    setPlayerKey(newKey);
   }
 
   /**
    * Called when the user toggle the current mode
    */
   function handleModeChange() {
-    const newSettings = { ...cutSettings };
-    if (cutSettings.type === 'mp3') {
-      newSettings.type = 'video';
+    const newOptions = { ...job.options };
+    if (job.options.type === 'mp3') {
+      newOptions.type = 'video';
     } else {
-      newSettings.type = 'mp3';
+      newOptions.type = 'mp3';
     }
 
-    localStorage.setItem('ytct_type', newSettings.type);
+    localStorage.setItem('ytct_type', newOptions.type);
 
-    setCutSettings(newSettings);
+    setJob({ ...job, options: newOptions, file: job.file });
+
+    // Force a player refresh after state update
+    setTimeout(() => {
+      refreshPlayer();
+    }, 50);
   }
 
   /**
@@ -234,36 +292,6 @@ function VideoStudio() {
    * Tell wether or not the user can launch the job
    */
   function canRunJob(): ICanRunJobResult {
-    // connecting
-    if (!store.connector.error && !store.connector.socket?.connected) {
-      return {
-        canRun: false,
-        reason: t('commons.connectionToTheServer'),
-      };
-    }
-
-    // connnection error
-    if (store.connector.error) {
-      return {
-        canRun: false,
-        reason: t('error.serverUnavailable'),
-      };
-    }
-
-    if (cutSettings.duration > maxCutDuration) {
-      return {
-        canRun: false,
-        reason: t('studio.tooLongCut').replace('%maxDuration%', String(maxCutDuration)),
-      };
-    }
-
-    if (!cutSettings.verificationToken) {
-      return {
-        canRun: false,
-        reason: t('studio.needToResolveCaptcha'),
-      };
-    }
-
     if (job.state === 'idle') {
       return {
         canRun: true,
@@ -283,10 +311,8 @@ function VideoStudio() {
 
   function getButtonLabel(job: IJobState) {
     switch (job.state) {
-      case 'waiting':
-        return t('state.waiting');
       case 'idle':
-        return t('studio.download');
+        return t('studio.cut');
       case 'error':
         return t('commons.retry');
       default:
@@ -300,8 +326,14 @@ function VideoStudio() {
         <div className="col-lg-6">
           <h2>{t('studio.cutTitle')}</h2>
           <ReactPlayer
+            config={{
+              file: {
+                forceVideo: job.options.type !== 'mp3',
+                forceAudio: job.options.type === 'mp3',
+              },
+            }}
             url={url}
-            playing={playing}
+            key={playerKey}
             ref={(player) => setPlayer(player!)}
             volume={0.5}
             controls={true}
@@ -317,9 +349,9 @@ function VideoStudio() {
           <div className="card">
             <h2 className="card-title">{t('studio.cutSettings')}</h2>
             <div className="row">
-              <div className="form-group">
+              <div className="form-group col-4">
                 <label>{t('studio.currentTime')}</label>
-                <input type="number" step="0.1" value={playerTime} max={maxCutDuration} min={0} className="form-control" disabled />
+                <input type="number" step="0.1" value={playerTime} min={0} className="form-control" disabled />
               </div>
               <div className="col-4 d-flex align-items-center justify-content-center">
                 <div className="custom-switch" data-toggle="tooltip" data-title={t('studio.previewModeDesc')}>
@@ -340,7 +372,7 @@ function VideoStudio() {
                     type="checkbox"
                     id="switch-mode"
                     disabled={!canEdit()}
-                    checked={cutSettings.type === 'mp3'}
+                    checked={job.options.type === 'mp3'}
                     onChange={() => {
                       handleModeChange();
                     }}
@@ -368,10 +400,10 @@ function VideoStudio() {
                 <input
                   type="number"
                   disabled={!canEdit()}
-                  value={cutSettings.start}
-                  min={cutSettings.min}
+                  value={job.options.start}
+                  min={job.options.min}
                   step="0.1"
-                  max={cutSettings.end}
+                  max={job.options.end}
                   className="form-control"
                   onChange={(e) => {
                     setTime(parseFloat(e.target.value), 'start');
@@ -393,9 +425,9 @@ function VideoStudio() {
                 <input
                   type="number"
                   disabled={!canEdit()}
-                  value={cutSettings.end}
-                  min={cutSettings.start}
-                  max={cutSettings.max}
+                  value={job.options.end}
+                  min={job.options.start}
+                  max={job.options.max}
                   step="0.1"
                   className="form-control"
                   onChange={(e) => {
@@ -414,7 +446,7 @@ function VideoStudio() {
                 <input
                   type="number"
                   disabled={!canEdit()}
-                  value={cutSettings.duration}
+                  value={job.options.duration}
                   min="0"
                   step="0.1"
                   className="form-control"
@@ -425,93 +457,89 @@ function VideoStudio() {
               </div>
             </div>
             <hr></hr>
-            {!job.fileUrl && (
-              <>
-                {job.state !== 'done' && (
-                  <>
-                    {showCaptcha && <HCaptcha theme={'dark'} sitekey={siteKey} onVerify={(token: string) => handleVerificationSuccess(token)} />}
 
-                    {/* // BASE BTN */}
-                    <button
-                      {...getTooltipProps(canRunJob())}
-                      className={classNames('btn btn-primary btn-lg btn-block mb-5')}
-                      disabled={!canRunJob().canRun}
-                      type="button"
-                      onClick={() => startJob()}
-                    >
-                      <span>{getButtonLabel(job)}</span>
-                    </button>
-                  </>
-                )}
-                {job.state === 'done' && (
-                  //DONE BTN
-                  <>
-                    <a href={getFileUrlForJob(job.id, cutSettings.type)} rel="noopener noreferrer" target="_blank" download>
-                      <button className={classNames('btn btn-success btn-lg btn-block mb-5')} type="button">
-                        <span>
-                          {t('studio.download')} <i className="fa fa-cloud-download-alt "></i>
-                        </span>
-                      </button>
-                    </a>
-                  </>
-                )}
+            <>
+              {job.state !== 'done' && (
+                <>
+                  {/* // BASE BTN */}
+                  <button
+                    {...getTooltipProps(canRunJob())}
+                    className={classNames('btn btn-primary btn-lg btn-block mb-5')}
+                    disabled={!canRunJob().canRun}
+                    type="button"
+                    onClick={() => startJob()}
+                  >
+                    <span>{getButtonLabel(job)}</span>
+                  </button>
+                </>
+              )}
+              {job.state === 'done' && (
+                //DONE BTN
+                <>
+                  <a href={job.fileDownloadUrl} className={classNames('btn btn-success btn-lg btn-block mb-5')} download>
+                    <span>
+                      {t('studio.download')} <i className="fa fa-cloud-download-alt "></i>
+                    </span>
+                  </a>
+                </>
+              )}
 
-                <div className={classNames('progress-group work-progress', { active: job.state !== 'idle' })}>
-                  <div className="progress">
-                    <div
-                      className={classNames('progress-bar progress-bar-animated', {
-                        'bg-success': job.state === 'done',
-                        'bg-danger': job.state === 'error',
-                      })}
-                      role="progressbar"
-                      style={{
-                        width: `${job.progress}%`,
-                      }}
-                      aria-valuenow={job.progress}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                    ></div>
-                  </div>
-                  <span className="progress-group-label">
-                    {job.state === 'done' && <i className="fa fa-check-circle text-success font-size-16"></i>}
-                    {(job.state === 'starting' || job.state === 'waiting' || job.state === 'downloading' || job.state === 'converting') && (
-                      <i className="fa fa-circle-notch text-primary font-size-16 rotating"></i>
-                    )}
-
-                    {job.state === 'error' && (
-                      <span data-toggle="tooltip" data-title={t('studio.anErrorHappened')}>
-                        <i className="fa fa-exclamation-circle text-danger font-size-16"></i>
-                      </span>
-                    )}
-                  </span>
+              <div className={classNames('progress-group work-progress', { active: job.state !== 'idle' })}>
+                <div className="progress">
+                  <div
+                    className={classNames('progress-bar progress-bar-animated', {
+                      'bg-success': job.state === 'done',
+                      'bg-danger': job.state === 'error',
+                    })}
+                    role="progressbar"
+                    style={{
+                      width: `${job.progress}%`,
+                    }}
+                    aria-valuenow={job.progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  ></div>
                 </div>
-                {job.queuePosition && (
-                  <div className="position-hint row text-muted disabled">
-                    <small
-                      className={classNames({
-                        active: job.queuePosition,
-                      })}
-                    >
-                      <i className="fa fa-clock flashing"></i>
-                      {` ${t('studio.positionInfo').replace('%position%', String(job.queuePosition))}`}
-                    </small>
-                  </div>
-                )}
+                <span className="progress-group-label">
+                  {job.state === 'done' && <i className="fa fa-check-circle text-success font-size-16"></i>}
+                  {(job.state === 'starting' || job.state === 'working') && <i className="fa fa-circle-notch text-primary font-size-16 rotating"></i>}
 
+                  {job.state === 'error' && (
+                    <span data-toggle="tooltip" data-title={t('studio.anErrorHappened')}>
+                      <i className="fa fa-exclamation-circle text-danger font-size-16"></i>
+                    </span>
+                  )}
+                </span>
+              </div>
+
+              <div className="text-right">
+                <button className="btn btn-link" onClick={selectNewFile}>
+                  {t('studio.anotherVideo')}
+                </button>
                 {job.state === 'done' && (
-                  <div className="text-right">
-                    <Link to="/">{t('studio.anotherVideo')}</Link>
+                  <>
                     {'   '}
                     {t('commons.or')}
                     <button className="btn btn-link" onClick={() => handleRestart()}>
                       {t('commons.restart')}
                     </button>
-                  </div>
+                  </>
                 )}
-              </>
-            )}
+              </div>
+            </>
+
+            <input
+              type="file"
+              id="new-file-dummy"
+              accept="video/mp4,video/x-m4v,video/*"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                handleFileSelected(e);
+              }}
+            />
+
             {/* <div className="row debug-info">
-              <code>{JSON.stringify(store.job)}</code>
+              <code>{JSON.stringify(job)}</code>
             </div> */}
           </div>
         </div>
