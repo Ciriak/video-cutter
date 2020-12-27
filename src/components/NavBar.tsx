@@ -9,8 +9,8 @@ import '../styles/nav-bar.scss';
 function NavBar() {
   const [t] = useTranslation();
   const { job, setJob } = useJob();
-  const twitterLink = encodeURI(`https://twitter.com/intent/tweet?text=${t('commons.title')}\n\nhttps://youtube-cutter.tools`);
-  const facebookLink = encodeURI(`https://www.facebook.com/sharer/sharer.php?u=https://youtube-cutter.tools`);
+  const twitterLink = encodeURI(`https://twitter.com/intent/tweet?text=${t('commons.title')}\n\nhttps://video-cutter.tools`);
+  const facebookLink = encodeURI(`https://www.facebook.com/sharer/sharer.php?u=https://video-cutter.tools`);
 
   function goToMain() {
     setJob({ ...job, ...defaultJobState });
