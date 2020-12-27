@@ -13,7 +13,7 @@ import frLocales from './locales/fr.json';
 import enLocales from './locales/en.json';
 import { RecoilRoot } from 'recoil';
 
-const userLang = localStorage.getItem('ytct_lang') || navigator.language;
+const userLang = localStorage.getItem('vct_lang') || navigator.language;
 
 i18n
   .use(initReactI18next) // passes i18n down to react-i18next
