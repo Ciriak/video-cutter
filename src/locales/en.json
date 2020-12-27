@@ -35,6 +35,7 @@
     "start": "Start",
     "duration": "Duration",
     "end": "End",
+    "cutAndDownload": "Cut and Download",
     "download": "Download",
     "cut": "Cut the clip",
     "needToResolveCaptcha": "You need to resolve the captcha first",
