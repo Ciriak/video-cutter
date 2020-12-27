@@ -22,6 +22,8 @@ function Footer() {
         </a>
       </div>
       <span className="footer-separator"></span>
+      <a href="//luvaihoo.com/afu.php?zoneid=3818545">Discover our partners</a>
+      <span className="footer-separator"></span>
       <div className="lang-manager footer-sec">
         <span>{`${t('commons.changeLanguage')} :`}</span>
         {availableLangs.map((lang, index) => {
