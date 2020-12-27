@@ -7,7 +7,7 @@ import { IJobState } from '../interfaces/Job.interface';
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 import useJob from '../hooks/useJob';
 const ffmpeg = createFFmpeg({ log: true });
-const savedPreviewMode = localStorage.getItem('ytct_preview') === 'true' || false;
+const savedPreviewMode = localStorage.getItem('vct_preview') === 'true' || false;
 
 interface ICutSettings {
   min: number;
@@ -72,7 +72,7 @@ function VideoStudio() {
   }
 
   function changePreviewMode(active: boolean) {
-    localStorage.setItem('ytct_preview', String(active));
+    localStorage.setItem('vct_preview', String(active));
     setPreviewMode(active);
   }
 
@@ -186,7 +186,7 @@ function VideoStudio() {
     setJob({ ...job, active: true, progress: 0, state: 'starting' });
 
     const fn = file.name.split('.');
-    const dlFileName = `${fn[0]}-ytc`;
+    const dlFileName = `${fn[0]}-cut`;
 
     let fileOutput = {
       name: `${dlFileName}.mp4`,
@@ -263,7 +263,7 @@ function VideoStudio() {
       newOptions.type = 'mp3';
     }
 
-    localStorage.setItem('ytct_type', newOptions.type);
+    localStorage.setItem('vct_type', newOptions.type);
 
     setJob({ ...job, options: newOptions, file: job.file });
 

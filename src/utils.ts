@@ -34,7 +34,7 @@ export function secondsAsString(seconds?: number): string {
  * Return the type saved in the localstorage OR video by default
  */
 export function getSavedConvertType(): 'video' | 'mp3' {
-  let savedType: any = String(localStorage.getItem('ytct_type')) || 'video';
+  let savedType: any = String(localStorage.getItem('vct_type')) || 'video';
 
   if (savedType === '') {
     savedType = 'video';

@@ -9,7 +9,7 @@ function Footer() {
     if (i18n.language === lang) {
       return;
     }
-    localStorage.setItem('ytct_lang', lang);
+    localStorage.setItem('vct_lang', lang);
     i18n.changeLanguage(lang);
   }
 
