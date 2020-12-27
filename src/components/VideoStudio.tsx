@@ -185,14 +185,17 @@ function VideoStudio() {
 
     setJob({ ...job, active: true, progress: 0, state: 'starting' });
 
+    const fn = file.name.split('.');
+    const dlFileName = `${fn[0]}-ytc`;
+
     let fileOutput = {
-      name: 'output.mp4',
+      name: `${dlFileName}.mp4`,
       type: 'video/mp4',
     };
 
     if (job.options.type === 'mp3') {
       fileOutput = {
-        name: 'output.mp3',
+        name: `${dlFileName}.mp3`,
         type: 'audio/mp3',
       };
     }
@@ -207,9 +210,22 @@ function VideoStudio() {
       setProgress(ratio);
     });
 
+    ffmpeg.FS('writeFile', 'overlay.png', await fetchFile('overlay.png'));
     ffmpeg.FS('writeFile', file.name, await fetchFile(file));
 
-    await ffmpeg.run('-i', file.name, '-t', String(jobDuration), '-ss', String(job.options.start), fileOutput.name);
+    await ffmpeg.run(
+      '-i',
+      file.name,
+      '-i',
+      'overlay.png',
+      '-t',
+      String(jobDuration),
+      '-ss',
+      String(job.options.start),
+      '-filter_complex',
+      "[0:v][1:v] overlay=10:10:enable='between(t,0,20)'",
+      fileOutput.name
+    );
 
     // await ffmpeg.run('-i', 'test.avi', 'test.mp4');
     // ffmpeg.FS('writeFile', name, await fetchFile(files[0]));
@@ -221,8 +237,10 @@ function VideoStudio() {
 
     setJob({ ...job, active: false, progress: 100, state: 'done', fileDownloadUrl: url });
     const link = document.createElement('a');
+
     link.href = url;
-    link.download = url;
+
+    link.download = `${fileOutput.name}`;
     link.click();
   }
 
@@ -331,7 +349,7 @@ function VideoStudio() {
           <div className="card">
             <h2 className="card-title">{t('studio.cutSettings')}</h2>
             <div className="row">
-              <div className="form-group">
+              <div className="form-group col-4">
                 <label>{t('studio.currentTime')}</label>
                 <input type="number" step="0.1" value={playerTime} min={0} className="form-control" disabled />
               </div>
@@ -513,6 +531,7 @@ function VideoStudio() {
             <input
               type="file"
               id="new-file-dummy"
+              accept="video/mp4,video/x-m4v,video/*"
               style={{ display: 'none' }}
               onChange={(e) => {
                 handleFileSelected(e);

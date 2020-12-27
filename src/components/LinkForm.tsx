@@ -1,18 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { exampleVideos } from '../utils';
-import { Link } from 'react-router-dom';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import useJob from '../hooks/useJob';
 
 function LinkForm() {
-  const [exampleVideo, setExampleVideo] = useState<any>();
   const { setFile } = useJob();
-
   const [t] = useTranslation();
-  useEffect(() => {
-    const ex = exampleVideos[Math.floor(Math.random() * exampleVideos.length)];
-    setExampleVideo(ex);
-  }, []);
 
   async function handleFileSelected(event: React.ChangeEvent<HTMLInputElement>) {
     const files = event.target.files;
@@ -31,18 +23,6 @@ function LinkForm() {
       <div className="card">
         <h2 className="card-title">{t('commons.title')}</h2>
         <p>{t('commons.description')}</p>
-        {/* <input
-          id="link-input"
-          type="text"
-          className={classNames('form-control form-control-lg', {
-            'is-invalid': !validState,
-          })}
-          placeholder={t('commons.pasteUrlHere')}
-          onChange={(e) => {
-            handleLinkChange(e);
-          }}
-          autoFocus
-        /> */}
         <div className="row">
           <button className="btn btn-block btn-primary btn-lg" onClick={selectFile}>
             {t('commons.selectFile')}
@@ -51,16 +31,12 @@ function LinkForm() {
         <input
           type="file"
           id="link-dummy"
+          accept="video/mp4,video/x-m4v,video/*"
           className="link-dummy"
           onChange={(e) => {
             handleFileSelected(e);
           }}
         />
-        {exampleVideo && (
-          <small className="float-right mt-5">
-            {t('commons.example')}: <Link to={`/link?url=${exampleVideo.url}`}>{exampleVideo.url}</Link>
-          </small>
-        )}
       </div>
     </div>
   );
