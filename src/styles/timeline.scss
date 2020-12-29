@@ -1,0 +1,20 @@
+$trackColor: var(--primary-color);
+
+.timeline {
+  margin-top: 14px;
+  .MuiSlider-track {
+    background-color: $trackColor;
+  }
+  .MuiSlider-thumb {
+    width: 4px;
+    border-radius: 0px;
+    margin-left: 0px;
+    background-color: $trackColor;
+    .PrivateValueLabel-circle-4 {
+      background-color: $trackColor;
+    }
+  }
+  .time-label {
+    user-select: none;
+  }
+}
