@@ -35,6 +35,7 @@
     "start": "Début",
     "duration": "Durée",
     "end": "Fin",
+    "cutAndDownload": "Découper et télécharger",
     "download": "Télécharger",
     "cut": "Découper",
     "needToResolveCaptcha": "Vous devez dabord résoudre le captcha",

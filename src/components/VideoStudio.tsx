@@ -6,19 +6,9 @@ import ReactPlayer from 'react-player';
 import { IJobState } from '../interfaces/Job.interface';
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 import useJob from '../hooks/useJob';
+import Timeline from './Timeline';
 const ffmpeg = createFFmpeg({ log: true });
 const savedPreviewMode = localStorage.getItem('vct_preview') === 'true' || false;
-
-interface ICutSettings {
-  min: number;
-  max: number;
-  start: number;
-  end: number;
-  duration: number;
-  videoUrl: string;
-  verificationToken?: string;
-  type: 'video' | 'mp3';
-}
 
 interface ICanRunJobResult {
   canRun: boolean;
@@ -34,7 +24,7 @@ function VideoStudio() {
   const [player, setPlayer] = useState<ReactPlayer>();
   const [playerKey, setPlayerKey] = useState(String(Math.random() * 10));
 
-  const { job, setProgress, setJob, setFile } = useJob();
+  const { job, setProgress, setJob, setFile, setTime } = useJob();
 
   useEffect(() => {
     if (!job.file) {
@@ -77,42 +67,6 @@ function VideoStudio() {
   }
 
   /**
-   * Set the cut time
-   * also set the player to the updated time (for preview purpose)
-   * @param start
-   * @param end
-   */
-  function setTime(value: number, pos: 'start' | 'end') {
-    value = parseFloat(value.toFixed(2));
-    const newOptions = { ...job.options };
-    newOptions[pos] = value;
-
-    if (newOptions.start > newOptions.end) {
-      newOptions.end = newOptions.start + 1;
-    }
-    // player.currentTime = value;
-
-    // ensure we cannot go more than the max duration setting
-    // if (newSettings.duration > maxDuration) {
-    //   // move the select area depending of the dot moving
-    //   if (pos === 'end') {
-    //     newSettings.start = newSettings.end - maxDuration;
-    //   }
-    //   if (pos === 'start') {
-    //     newSettings.end = newSettings.start + maxDuration;
-    //   }
-
-    //   newSettings.duration = maxDuration;
-    // }
-
-    newOptions.duration = newOptions.end - newOptions.start;
-
-    const updatedOptions = { ...job.options, ...newOptions };
-
-    setJob({ ...job, options: updatedOptions });
-  }
-
-  /**
    * Can edit job settings
    */
   function canEdit() {
@@ -130,11 +84,11 @@ function VideoStudio() {
     duration = parseFloat(duration.toFixed(2));
     if (duration > job.options.duration && job.options.end < job.options.max) {
       // if increment AND can increment
-      setTime(job.options.end + 1, 'end');
+      setTime(job.options.start, job.options.end + 1);
     }
     if (duration < job.options.duration && job.options.end > job.options.min + 1) {
       // if increment AND can increment
-      setTime(job.options.end - 1, 'end');
+      setTime(job.options.start, job.options.end - 1);
     }
   }
 
@@ -167,6 +121,7 @@ function VideoStudio() {
     newOptions.end = job.options.end || defaultCut;
     newOptions.duration = job.options.duration || defaultCut;
     newOptions.min = job.options.min || 0;
+    newOptions.max = duration;
 
     const updatedOptions = { ...job.options, ...newOptions };
 
@@ -312,7 +267,7 @@ function VideoStudio() {
   function getButtonLabel(job: IJobState) {
     switch (job.state) {
       case 'idle':
-        return t('studio.cut');
+        return t('studio.cutAndDownload');
       case 'error':
         return t('commons.retry');
       default:
@@ -391,7 +346,7 @@ function VideoStudio() {
                     className="btn tool-btn"
                     disabled={!canEdit()}
                     onClick={() => {
-                      setTime(playerTime, 'start');
+                      setTime(playerTime);
                     }}
                   >
                     {t('studio.start')}
@@ -406,7 +361,7 @@ function VideoStudio() {
                   max={job.options.end}
                   className="form-control"
                   onChange={(e) => {
-                    setTime(parseFloat(e.target.value), 'start');
+                    setTime(parseFloat(e.target.value));
                   }}
                 />
               </div>
@@ -416,7 +371,7 @@ function VideoStudio() {
                     disabled={!canEdit()}
                     className="btn tool-btn"
                     onClick={() => {
-                      setTime(playerTime, 'end');
+                      setTime(job.options.start, playerTime);
                     }}
                   >
                     {t('studio.end')}
@@ -431,7 +386,7 @@ function VideoStudio() {
                   step="0.1"
                   className="form-control"
                   onChange={(e) => {
-                    setTime(parseFloat(e.target.value), 'end');
+                    setTime(job.options.start, parseFloat(e.target.value));
                   }}
                 />
               </div>
@@ -455,6 +410,9 @@ function VideoStudio() {
                   }}
                 />
               </div>
+            </div>
+            <div className="row">
+              <Timeline />
             </div>
             <hr></hr>
 
