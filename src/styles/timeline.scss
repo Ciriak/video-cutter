@@ -10,8 +10,10 @@ $trackColor: var(--primary-color);
     border-radius: 0px;
     margin-left: 0px;
     background-color: $trackColor;
-    .PrivateValueLabel-circle-4 {
-      background-color: $trackColor;
+    .MuiSlider-valueLabel {
+      > span {
+        background-color: $trackColor;
+      }
     }
   }
   .time-label {
