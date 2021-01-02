@@ -7,6 +7,7 @@ import { IJobState } from '../interfaces/Job.interface';
 import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 import useJob from '../hooks/useJob';
 import Timeline from './Timeline';
+import { getTrueProgress } from '../utils';
 const ffmpeg = createFFmpeg({ log: true });
 const savedPreviewMode = localStorage.getItem('vct_preview') === 'true' || false;
 
@@ -162,7 +163,8 @@ function VideoStudio() {
     }
 
     ffmpeg.setProgress(({ ratio }) => {
-      setProgress(ratio);
+      const trueProgress = getTrueProgress(ratio, job.options.duration, job.options.max);
+      setProgress(trueProgress);
     });
 
     ffmpeg.FS('writeFile', 'overlay.png', await fetchFile('overlay.png'));
@@ -241,6 +243,16 @@ function VideoStudio() {
       };
     }
     return null;
+  }
+
+  /**
+   * True if we should show a warning because the video is long
+   */
+  function shouldShowDurationWarning() {
+    if (job.state === 'idle' && job.options.max > 120) {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -440,6 +452,16 @@ function VideoStudio() {
                     </span>
                   </a>
                 </>
+              )}
+
+              {shouldShowDurationWarning() && (
+                <div className="row">
+                  <div className="col">
+                    <div className="alert alert-secondary" role="alert">
+                      <i className="fas fa-exclamation-triangle"></i> {t('studio.longVideoWarning')}
+                    </div>
+                  </div>
+                </div>
               )}
 
               <div className={classNames('progress-group work-progress', { active: job.state !== 'idle' })}>

@@ -42,6 +42,23 @@ export function getSavedConvertType(): 'video' | 'mp3' {
   return savedType;
 }
 
+/**
+ * Check the duration of the clip and return a
+ * @param progress progress ratio (0.0 => 1)
+ * @param duration
+ * @param fullDuration
+ * @return a progress ratio  (0.0 => 1)
+ */
+export function getTrueProgress(progress: number, duration: number, fullDuration: number): number {
+  // stop if weird or invalid value
+  if (progress <= 0) {
+    return 0;
+  }
+  const cutPercent = (duration / fullDuration) * 100;
+  const fullProgress = (progress / cutPercent) * 100;
+  return fullProgress;
+}
+
 export function stringAsSeconds(value: string): number {
   // ensure that the milliseconds are provided
   if (value.indexOf('.') === -1) {

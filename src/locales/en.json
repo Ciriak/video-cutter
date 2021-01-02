@@ -44,7 +44,8 @@
     "anErrorHappened": "An error happened",
     "anotherVideo": "Cut another video",
     "tooLongCut": "The clip length cannot exceed %maxDuration% seconds",
-    "positionInfo": "position : %position%"
+    "positionInfo": "position : %position%",
+    "longVideoWarning": "Videos longer than 2 min might take a while to process"
   },
   "state": {
     "idle": "Idle",
