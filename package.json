@@ -26,6 +26,7 @@
     "query-string": "^6.13.6",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
+    "react-dropzone": "^11.2.4",
     "react-i18next": "^11.7.3",
     "react-player": "^2.6.2",
     "react-router": "^5.2.0",

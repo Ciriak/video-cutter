@@ -1,4 +1,27 @@
 .welcome {
   display: flex;
   align-items: center;
+  .drag-overlay {
+    position: fixed;
+    width: 80%;
+    height: 80%;
+    top: -100%;
+    left: 10%;
+    border: 4px #ccc dotted;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    z-index: 4;
+  }
+
+  &.drag-mode {
+    .col {
+      transition-duration: 0.3s;
+      opacity: 0.4;
+    }
+    .drag-overlay {
+      top: 10%;
+    }
+  }
 }
