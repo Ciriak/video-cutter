@@ -21,7 +21,9 @@
     "connection": "Connexion...",
     "offline": "Hors ligne",
     "connectionToTheServer": "Connexion au serveur...",
-    "selectFile": "Sélectionner un fichier"
+    "selectFile": "Sélectionner un fichier",
+    "orDropFile": "Ou déposez un fichier",
+    "dropFileHere": "Déposez votre fichier ici"
   },
   "studio": {
     "cutTitle": "Découper une vidéo",

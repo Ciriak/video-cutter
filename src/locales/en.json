@@ -21,7 +21,9 @@
     "connection": "Connection...",
     "offline": "Offline",
     "connectionToTheServer": "Connecting to the server..",
-    "selectFile": "Select a file"
+    "selectFile": "Select a file",
+    "orDropFile": "Or drop a file",
+    "dropFileHere": "Drop file here"
   },
   "studio": {
     "cutTitle": "Cut any video",
