@@ -20,6 +20,7 @@ function Welcome() {
   const onDrop = useCallback((acceptedFiles) => {
     // Do something with the files
     handleFileSelected(acceptedFiles);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });

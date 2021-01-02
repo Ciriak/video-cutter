@@ -1,11 +1,9 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import useJob from '../hooks/useJob';
 import classnames from 'classnames';
 import '../styles/link-form.scss';
 
 function LinkForm() {
-  const { setFile } = useJob();
   const [t] = useTranslation();
   function selectFile() {
     const inp = document.getElementById('link-dummy');
