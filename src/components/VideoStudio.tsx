@@ -21,6 +21,7 @@ function VideoStudio() {
   const [url, setUrl] = useState<string>('');
   // const [loading, setLoading] = useState(true);
   const [playerTime, setPlayerTime] = useState<number>(0);
+  const [enableOverlay, setEnableOverlay] = useState<boolean>(true);
   const [previewMode, setPreviewMode] = useState<boolean>(savedPreviewMode);
   const [player, setPlayer] = useState<ReactPlayer>();
   const [playerKey, setPlayerKey] = useState(String(Math.random() * 10));
@@ -170,19 +171,31 @@ function VideoStudio() {
     ffmpeg.FS('writeFile', 'overlay.png', await fetchFile('overlay.png'));
     ffmpeg.FS('writeFile', file.name, await fetchFile(file));
 
-    await ffmpeg.run(
-      '-i',
-      file.name,
-      '-i',
-      'overlay.png',
-      '-t',
-      String(jobDuration),
-      '-ss',
-      String(job.options.start),
-      '-filter_complex',
-      "[0:v][1:v] overlay=10:10:enable='between(t,0,20)'",
-      fileOutput.name
-    );
+    if(enableOverlay) {
+      await ffmpeg.run(
+        '-i',
+        file.name,
+        '-i',
+        'overlay.png',
+        '-t',
+        String(jobDuration),
+        '-ss',
+        String(job.options.start),
+        '-filter_complex',
+        "[0:v][1:v] overlay=10:10:enable='between(t,0,20)'",
+        fileOutput.name
+      );
+    } else {
+      await ffmpeg.run(
+        '-i',
+        file.name,
+        '-t',
+        String(jobDuration),
+        '-ss',
+        String(job.options.start),
+        fileOutput.name
+      );
+    }
 
     // await ffmpeg.run('-i', 'test.avi', 'test.mp4');
     // ffmpeg.FS('writeFile', name, await fetchFile(files[0]));
@@ -421,6 +434,18 @@ function VideoStudio() {
                     setDuration(parseFloat(e.target.value));
                   }}
                 />
+              </div>
+              <div className="col-6 d-flex align-items-center justify-content-center">
+                <div className="custom-switch" data-toggle="tooltip" data-title={t('studio.overlayDesc')}>
+                  <input
+                    type="checkbox"
+                    id="switch-overlay"
+                    checked={enableOverlay}
+                    disabled={!canEdit()}
+                    onChange={() => setEnableOverlay(!enableOverlay)}
+                  />
+                  <label htmlFor="switch-overlay">{t('studio.overlay')}</label>
+                </div>
               </div>
             </div>
             <div className="row">

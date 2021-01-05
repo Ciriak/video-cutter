@@ -45,7 +45,9 @@
     "anotherVideo": "Cut another video",
     "tooLongCut": "The clip length cannot exceed %maxDuration% seconds",
     "positionInfo": "position : %position%",
-    "longVideoWarning": "Videos longer than 2 min might take a while to process"
+    "longVideoWarning": "Videos longer than 2 min might take a while to process",
+    "overlay": "Overlay",
+    "overlayDesc": "Add a video-cutter overlay on the top left of the video"
   },
   "state": {
     "idle": "Idle",
