@@ -171,31 +171,15 @@ function VideoStudio() {
     ffmpeg.FS('writeFile', 'overlay.png', await fetchFile('overlay.png'));
     ffmpeg.FS('writeFile', file.name, await fetchFile(file));
 
-    if(enableOverlay) {
-      await ffmpeg.run(
-        '-i',
-        file.name,
-        '-i',
-        'overlay.png',
-        '-t',
-        String(jobDuration),
-        '-ss',
-        String(job.options.start),
-        '-filter_complex',
-        "[0:v][1:v] overlay=10:10:enable='between(t,0,20)'",
-        fileOutput.name
-      );
-    } else {
-      await ffmpeg.run(
-        '-i',
-        file.name,
-        '-t',
-        String(jobDuration),
-        '-ss',
-        String(job.options.start),
-        fileOutput.name
-      );
-    }
+    await ffmpeg.run(
+      '-i',
+      file.name,
+      '-t',
+      String(jobDuration),
+      '-ss',
+      String(job.options.start),
+      fileOutput.name
+    );
 
     // await ffmpeg.run('-i', 'test.avi', 'test.mp4');
     // ffmpeg.FS('writeFile', name, await fetchFile(files[0]));
