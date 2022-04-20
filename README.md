@@ -1,3 +1,5 @@
+# >>> This project is no longer maintained <<<
+
 # Video cutter
 
 ## Cut any video online using FFMPEG... no server needed !
